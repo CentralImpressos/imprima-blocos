@@ -23,28 +23,15 @@ export function buildHeader(
   if (ctx.logoBox) {
     const h = logoH;
     const w = Math.min((ctx.logoBox.w / ctx.logoBox.h) * h, contentW * 0.45);
-    els.push({
-      kind: "image",
-      x: m + company.logoOffsetX,
-      y: y + company.logoOffsetY,
-      w,
-      h,
-      src: company.logo as string,
-    });
+    els.push({ kind: "image", x: m + company.logoOffsetX, y: y + company.logoOffsetY, w, h, src: company.logo as string });
     textX = m + w + 4;
     textW = contentW - w - 4;
   }
 
   const nameSize = compact ? 10 : 12;
   els.push({
-    kind: "text",
-    x: textX,
-    y,
-    size: nameSize,
-    bold: true,
-    text: company.tradeName || company.name || "NOME DA EMPRESA",
-    align: "left",
-    width: textW,
+    kind: "text", x: textX, y, size: nameSize, bold: true,
+    text: company.tradeName || company.name || "NOME DA EMPRESA", align: "left", width: textW,
   });
   y += ptToMm(nameSize) + 1;
 
@@ -66,20 +53,13 @@ export function buildHeader(
   }
 
   y = Math.max(y, m + (ctx.logoBox ? logoH : 0)) + 2;
-
   els.push({ kind: "line", x1: m, y1: y, x2: m + contentW, y2: y, lineWidth: 0.6 });
   y += 3;
 
   if (opts.title) {
     els.push({
-      kind: "text",
-      x: m,
-      y,
-      size: compact ? 9 : 11,
-      bold: true,
-      align: "center",
-      width: contentW,
-      text: opts.title,
+      kind: "text", x: m, y, size: compact ? 9 : 11, bold: true,
+      align: "center", width: contentW, text: opts.title, fontFamily: ctx.doc.titleFont,
     });
     y += ptToMm(compact ? 9 : 11) + 2.5;
   }
@@ -104,66 +84,28 @@ export function buildFooter(ctx: LayoutContext, bottomY: number): DocElement[] {
   const line = parts.filter(Boolean).join("  •  ");
   const els: DocElement[] = [];
   let y = bottomY;
-
   const msg = f.message || company.footerText;
-  if (msg) {
-    y -= ptToMm(f.fontSize + 1) + 1;
-  }
+  if (msg) y -= ptToMm(f.fontSize + 1) + 1;
   if (line) y -= ptToMm(f.fontSize) + 1;
-
   els.push({ kind: "line", x1: m, y1: y - 2, x2: m + contentW, y2: y - 2, lineWidth: 0.3, gray: 0.6 });
-
   if (line) {
-    els.push({
-      kind: "text",
-      x: m,
-      y,
-      size: f.fontSize,
-      align: "center",
-      width: contentW,
-      text: line,
-      gray: 0.25,
-    });
+    els.push({ kind: "text", x: m, y, size: f.fontSize, align: "center", width: contentW, text: line, gray: 0.25 });
     y += ptToMm(f.fontSize) + 1;
   }
   if (msg) {
-    els.push({
-      kind: "text",
-      x: m,
-      y,
-      size: f.fontSize + 1,
-      bold: true,
-      align: "center",
-      width: contentW,
-      text: msg,
-    });
+    els.push({ kind: "text", x: m, y, size: f.fontSize + 1, bold: true, align: "center", width: contentW, text: msg });
   }
   return els;
 }
 
-/** altura total ocupada pelo rodapé em mm */
 export function footerHeight(ctx: LayoutContext): number {
   const f = ctx.doc.footer;
   return ptToMm(f.fontSize) + ptToMm(f.fontSize + 1) + 6;
 }
 
-export function labeledLine(
-  x: number,
-  y: number,
-  w: number,
-  label: string,
-  size = 8,
-): DocElement[] {
+export function labeledLine(x: number, y: number, w: number, label: string, size = 8): DocElement[] {
   return [
     { kind: "text", x, y, size, text: label, bold: true },
-    {
-      kind: "line",
-      x1: x + label.length * size * 0.16 + 2,
-      y1: y + ptToMm(size) + 0.3,
-      x2: x + w,
-      y2: y + ptToMm(size) + 0.3,
-      lineWidth: 0.3,
-      gray: 0.4,
-    },
+    { kind: "line", x1: x + label.length * size * 0.16 + 2, y1: y + ptToMm(size) + 0.3, x2: x + w, y2: y + ptToMm(size) + 0.3, lineWidth: 0.3, gray: 0.4 },
   ];
 }
