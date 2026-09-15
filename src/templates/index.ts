@@ -30,6 +30,12 @@ export interface BuiltDocument {
   stubX: number | null;
 }
 
+function shiftElementX(el: DocElement, dx: number): DocElement {
+  if (dx === 0) return el;
+  if (el.kind === "line") return { ...el, x1: el.x1 + dx, x2: el.x2 + dx };
+  return { ...el, x: el.x + dx };
+}
+
 export function buildDocument(
   company: Company,
   doc: BlockDoc,
@@ -41,11 +47,10 @@ export function buildDocument(
   const fullContentW = size.widthMm - safe * 2;
   const contentH = size.heightMm - safe * 2;
 
-  // Recibo, rifa e carnê usam canhoto vertical à esquerda.
-  // O stubRatio continua representando a proporção da largura útil ocupada pelo canhoto.
+  // Para recibo, rifa e carnê, o canhoto ocupa uma faixa vertical à esquerda.
   const stubW = doc.canhoto ? Math.round(fullContentW * doc.stubRatio) : 0;
   const stubX = doc.canhoto ? safe : 0;
-  const m = safe + stubW;
+  const m = safe;
   const contentW = fullContentW - stubW;
 
   const ctx: LayoutContext = {
@@ -61,7 +66,10 @@ export function buildDocument(
     logoBox: company.logo && logoAspect ? { w: logoAspect, h: 1 } : null,
   };
 
-  const content = RENDERERS[doc.typeId](ctx);
+  // Os templates calculam o conteúdo principal normalmente a partir de m/contentW.
+  // Depois deslocamos todo o conteúdo para a direita para abrir espaço ao canhoto.
+  const rawContent = RENDERERS[doc.typeId](ctx);
+  const content = stubW > 0 ? rawContent.map((el) => shiftElementX(el, stubW)) : rawContent;
 
   const production: DocElement[] = [];
   const stubXLine = doc.canhoto ? safe + stubW : null;
@@ -78,7 +86,7 @@ export function buildDocument(
       gray: 0.45,
     });
   } else if (doc.serrilha && prod.showSerrilha && stubXLine === null) {
-    // Serrilha opcional de destaque na lateral esquerda quando não existe canhoto.
+    // Serrilha opcional sem canhoto: lateral esquerda.
     production.push({
       kind: "line",
       x1: 6,
@@ -147,9 +155,9 @@ export function buildDocument(
     guides.push({
       kind: "rect",
       x: safe,
-      y: 0,
+      y: safe,
       w: stubW,
-      h: size.heightMm,
+      h: contentH,
       fill: 0.97,
       stroke: null,
     });
