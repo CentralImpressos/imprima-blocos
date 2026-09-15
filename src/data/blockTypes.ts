@@ -51,13 +51,16 @@ export const BLOCK_TYPES: BlockType[] = [
 export const getType = (id: BlockTypeId): BlockType =>
   BLOCK_TYPES.find((t) => t.id === id) ?? BLOCK_TYPES[0]!;
 
+// Conteúdo demonstrativo propositalmente genérico: ajuda a visualizar uma
+// comanda real sem amarrar o template a um cliente ou estabelecimento.
 const COMANDA_ITEMS = [
-  "Buffet SC",
-  "Buffet CC",
-  "Rodízio SC",
-  "Rodízio CC",
-  "Rodízio Infantil SC",
-  "Rodízio Infantil CC",
+  "Hambúrguer",
+  "Sanduíche",
+  "Porção",
+  "Prato",
+  "Massa",
+  "Salada",
+  "Sobremesa",
   "Cerveja 600ml",
   "Cerveja long",
   "Drink",
@@ -69,7 +72,6 @@ const COMANDA_ITEMS = [
   "Suco",
   "Energético",
   "Dose",
-  "Caipirinha",
   "Água Mineral",
 ];
 
@@ -116,8 +118,8 @@ export function emptyTable(): TableConfig {
     fontSize: 8,
     borderWidth: 0.3,
     showBorders: true,
-    twoColumns: false,
     fillRows: true,
+    twoColumns: false,
   };
 }
 
