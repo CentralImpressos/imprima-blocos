@@ -65,6 +65,8 @@ export interface BlockDoc {
   grampo: boolean;
   canhoto: boolean;
   stubRatio: number;
+  /** arredonda apenas os cantos externos de tabelas e caixas retangulares */
+  roundedCorners: boolean;
   title: string;
   subtitle: string;
   fields: Record<string, string>;
