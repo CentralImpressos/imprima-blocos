@@ -39,13 +39,29 @@ export const renderPedido: TemplateRenderer = (ctx: LayoutContext) => {
   const totalH = 9;
   const tableMaxH = bottom - fH - totalH - obsH - y - 4;
 
-  const t = buildTableElements({ x: m, y, w: contentW, maxH: tableMaxH, table: doc.table });
+  const t = buildTableElements({
+    x: m,
+    y,
+    w: contentW,
+    maxH: tableMaxH,
+    table: doc.table,
+    roundedCorners: doc.roundedCorners,
+  });
   els.push(...t.els);
   y = t.y + 3;
 
   const ty = bottom - fH - obsH - totalH;
   els.push(
-    { kind: "rect", x: m + contentW / 2, y: ty, w: contentW / 2, h: totalH, stroke: 0.15, lineWidth: 0.5 },
+    {
+      kind: "rect",
+      x: m + contentW / 2,
+      y: ty,
+      w: contentW / 2,
+      h: totalH,
+      stroke: 0.15,
+      lineWidth: 0.5,
+      ...(doc.roundedCorners ? { radius: 1.8 } : {}),
+    },
     {
       kind: "text",
       x: m + contentW / 2 + 2,
