@@ -20,8 +20,9 @@ export const renderComanda: TemplateRenderer = (ctx: LayoutContext) => {
   y += ptToMm(idSize) + 4;
 
   const fH = footerHeight(ctx);
-  const totalH = 9;
-  const bottom = m + contentH - ctx.stubH;
+  const totalSize = doc.totalSize ?? 11;
+  const totalH = Math.max(9, ptToMm(totalSize) + 3);
+  const bottom = m + contentH;
   const tableMaxH = bottom - fH - totalH - y - 2;
   const t = buildTableElements({ x: m, y, w: contentW, maxH: tableMaxH, table: doc.table, roundedCorners: doc.roundedCorners });
   els.push(...t.els);
@@ -29,8 +30,8 @@ export const renderComanda: TemplateRenderer = (ctx: LayoutContext) => {
   const ty = bottom - fH - totalH;
   els.push(
     { kind: "rect", x: m, y: ty, w: contentW, h: totalH, stroke: 0.15, lineWidth: 0.5, ...(doc.roundedCorners ? { radius: 1.8 } : {}) },
-    { kind: "text", x: m + 2, y: ty + (totalH - ptToMm(doc.titleSize ?? 10)) / 2, size: doc.titleSize ?? 10, bold: true, text: doc.fields["totalLabel"] || "TOTAL R$" },
+    { kind: "text", x: m + 2, y: ty + (totalH - ptToMm(totalSize)) / 2, size: totalSize, bold: true, text: doc.fields["totalLabel"] || "TOTAL R$" },
   );
-  els.push(...buildFooter(ctx, bottom - 1));
+  els.push(...buildFooter(ctx, bottom - 3));
   return els;
 };
