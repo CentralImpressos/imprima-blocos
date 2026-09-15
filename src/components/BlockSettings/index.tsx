@@ -20,11 +20,14 @@ export function BlockSettings() {
     if (!availableSizes.some((s) => s.id === doc.sizeId)) setDoc({ sizeId: type.defaultSizeId });
   }, [availableSizes, doc.sizeId, setDoc, type.defaultSizeId]);
 
+  // O tamanho define apenas o estado inicial da comanda. Depois disso o usuário
+  // pode alternar livremente entre uma e duas colunas sem o efeito sobrescrever a escolha.
   useEffect(() => {
     if (doc.typeId !== "comanda") return;
     const twoColumns = doc.sizeId !== "9x20";
     if (doc.table.twoColumns !== twoColumns) setDoc({ table: { ...doc.table, twoColumns } });
-  }, [doc.typeId, doc.sizeId, doc.table, setDoc]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doc.typeId, doc.sizeId]);
 
   return <div className="flex flex-col gap-3 p-3">
     <Field label="Nome do projeto"><input className="field-input" value={doc.name} onChange={(e) => setDoc({ name: e.target.value })} /></Field>
