@@ -70,12 +70,12 @@ function Studio() {
     <div className="flex h-screen flex-col bg-background">
       <header className="shrink-0 border-b border-border bg-surface">
         <CmykBar />
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-baseline gap-3">
-            <h1 className="font-display text-sm font-bold uppercase tracking-[0.18em] text-foreground">
+            <h1 className="font-display text-base font-bold uppercase tracking-[0.18em] text-foreground">
               Imprima Cooper
             </h1>
-            <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
               Gerador de Blocos
             </span>
           </div>
@@ -86,7 +86,7 @@ function Studio() {
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
         <aside className="min-h-0 overflow-auto border-r border-border bg-surface">
           <SectionTitle>Tipo de bloco</SectionTitle>
           <TemplateSelector />
@@ -101,13 +101,13 @@ function Studio() {
         </main>
 
         <aside className="flex min-h-0 flex-col overflow-hidden border-l border-border bg-surface">
-          <div className="flex flex-wrap gap-0.5 border-b border-border p-1">
+          <div className="flex flex-wrap gap-1 border-b border-border p-2">
             {TABS.filter((t) => t.id !== "tabela" || hasTable).map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "rounded-[3px] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide transition-colors",
+                  "rounded-[3px] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors",
                   tab === t.id
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-secondary",
