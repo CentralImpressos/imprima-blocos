@@ -19,13 +19,13 @@ function applyFonts(els: DocElement[], bodyFont: string): DocElement[] { return 
 export function buildDocument(company: Company, doc: BlockDoc, prod: ProductionSettings, logoAspect: number | null): BuiltDocument {
   const size = getSize(doc.sizeId);
   const safe = prod.safeMm;
-  const topFinish = doc.typeId === "comanda" ? 9 : 0;
+  const topOffsetMm = doc.typeId === "comanda" ? 9 : 0;
   const fullContentW = size.widthMm - safe * 2;
-  const contentH = size.heightMm - safe * 2 - topFinish;
+  const contentH = size.heightMm - safe * 2;
   const stubW = doc.canhoto ? Math.round(fullContentW * doc.stubRatio) : 0;
   const stubX = doc.canhoto ? safe : 0;
-  const m = safe + topFinish;
-  const ctx: LayoutContext = { company, doc, size, m, contentW: fullContentW - stubW, contentH, stubW, stubX, stubH: 0, logoBox: company.logo && logoAspect ? { w: logoAspect, h: 1 } : null };
+  const m = safe;
+  const ctx: LayoutContext = { company, doc, size, m, topOffsetMm, contentW: fullContentW - stubW, contentH, stubW, stubX, stubH: 0, logoBox: company.logo && logoAspect ? { w: logoAspect, h: 1 } : null };
 
   const rawContent = RENDERERS[doc.typeId](ctx);
   const content = applyFonts(stubW > 0 ? rawContent.map((el) => shiftElementX(el, stubW)) : rawContent, doc.bodyFont);
