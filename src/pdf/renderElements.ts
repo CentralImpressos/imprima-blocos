@@ -1,6 +1,7 @@
 import { rgb, type PDFFont, type PDFPage, type PDFImage } from "pdf-lib";
 import type { DocElement, RectCorner } from "@/types/template";
-import { mmToPt } from "@/templates/shared";
+import { ICON_PATHS, ICON_VIEWBOX } from "@/data/fonts";
+import { mmToPt, ptToMm } from "@/templates/shared";
 
 export interface DrawCtx {
   page: PDFPage;
@@ -37,6 +38,15 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
       const baselineMm = el.y + (el.size * 0.78 * 25.4) / 72;
       const p = toPt(ctx, xMm, baselineMm);
       ctx.page.drawText(text, { x: p.x, y: p.y, size: el.size, font, color: g(el.gray ?? 0) });
+    } else if (el.kind === "icon") {
+      const [, vbH] = ICON_VIEWBOX[el.icon];
+      const iconBottom = toPt(ctx, el.x, el.y + ptToMm(el.size));
+      ctx.page.drawSvgPath(ICON_PATHS[el.icon], {
+        x: iconBottom.x,
+        y: iconBottom.y,
+        scale: el.size / vbH,
+        color: g(el.gray ?? 0),
+      });
     } else if (el.kind === "line") {
       const a = toPt(ctx, el.x1, el.y1), b = toPt(ctx, el.x2, el.y2);
       ctx.page.drawLine({ start: a, end: b, thickness: mmToPt(el.lineWidth ?? 0.3), color: g(el.gray ?? 0), ...(el.dash ? { dashArray: el.dash.map(mmToPt) } : {}) });
