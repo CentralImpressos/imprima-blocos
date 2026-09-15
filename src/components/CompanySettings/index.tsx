@@ -10,7 +10,6 @@ export function CompanySettings() {
       <div className="grid grid-cols-2 gap-2">
         <TextField label="Nome" value={company.name} onChange={(v) => setCompany({ name: v })} placeholder="NOME DA EMPRESA" className="col-span-2" />
         <TextField label="Nome fantasia" value={company.tradeName} onChange={(v) => setCompany({ tradeName: v })} placeholder="NOME FANTASIA" className="col-span-2" />
-        <TextField label="CNPJ" value={company.cnpj} onChange={(v) => setCompany({ cnpj: v })} />
         <TextField label="CEP" value={company.zip} onChange={(v) => setCompany({ zip: v })} />
         <TextField label="Endereço" value={company.address} onChange={(v) => setCompany({ address: v })} className="col-span-2" />
         <TextField label="Número" value={company.number} onChange={(v) => setCompany({ number: v })} />
