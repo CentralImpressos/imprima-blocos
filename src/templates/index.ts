@@ -24,7 +24,10 @@ export function buildDocument(company: Company, doc: BlockDoc, prod: ProductionS
   const hasTopFinish = doc.typeId === "comanda" || doc.typeId === "pedido";
   const topOffsetMm = hasTopFinish ? 9 : (isPortrait ? 6 : 0);
   const fullContentW = size.widthMm - safe * 2;
-  const contentH = size.heightMm - safe * 2 - topOffsetMm;
+  // topOffsetMm desloca o início do conteúdo para baixo, mas não deve reduzir
+  // a altura útil até a margem de segurança inferior. O ponto inferior é sempre
+  // a margem segura real da página (m + contentH).
+  const contentH = size.heightMm - safe * 2;
   const stubW = doc.canhoto ? Math.round(fullContentW * doc.stubRatio) : 0;
   const stubX = doc.canhoto ? safe : 0;
   const m = safe;
