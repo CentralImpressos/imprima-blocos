@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStudio } from "@/hooks/useStudio";
 import { buildDocument } from "@/templates";
 import type { DocElement, RectCorner } from "@/types/template";
@@ -116,6 +116,8 @@ export function DocumentPreview() {
   const b = production.showBleed ? production.bleedMm : 0;
   const vw = built.widthMm + b * 2;
   const vh = built.heightMm + b * 2;
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState({ width: 0, height: 0 });
   const [mode, setMode] = useState<PreviewMode>("fit");
   const [zoom, setZoom] = useState(1);
 
@@ -124,6 +126,16 @@ export function DocumentPreview() {
     if (saved === "fit" || saved === "width" || saved === "zoom") setMode(saved);
     const savedZoom = Number(localStorage.getItem("imprima-blocos-preview-zoom"));
     if (savedZoom >= 0.5 && savedZoom <= 3) setZoom(savedZoom);
+  }, []);
+
+  useEffect(() => {
+    const node = stageRef.current;
+    if (!node) return;
+    const update = () => setStage({ width: node.clientWidth, height: node.clientHeight });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => observer.disconnect();
   }, []);
 
   const changeMode = (next: PreviewMode) => {
@@ -145,6 +157,14 @@ export function DocumentPreview() {
         ? "border-primary bg-primary text-primary-foreground"
         : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
     }`;
+
+  const fitWidth = stage.width > 0 && stage.height > 0
+    ? Math.min(stage.width, stage.height * (vw / vh))
+    : 0;
+  const widthModeWidth = stage.width;
+  const previewWidth = mode === "fit" ? fitWidth : mode === "width" ? widthModeWidth : fitWidth * zoom;
+  const previewHeight = previewWidth > 0 ? previewWidth * (vh / vw) : 0;
+  const isOversized = previewWidth > stage.width || previewHeight > stage.height;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background p-4">
@@ -170,19 +190,14 @@ export function DocumentPreview() {
         </div>
       </div>
 
-      <div className="min-h-0 min-w-0 flex-1 overflow-auto rounded-[3px] bg-background">
+      <div ref={stageRef} className="min-h-0 min-w-0 flex-1 overflow-auto rounded-[3px] bg-background">
         <div
-          className={`flex min-h-full min-w-full items-center justify-center ${mode === "width" ? "p-4" : "p-4"}`}
+          className="flex min-h-full min-w-full items-center justify-center p-4"
+          style={{ minWidth: isOversized ? `${previewWidth + 32}px` : undefined, minHeight: isOversized ? `${previewHeight + 32}px` : undefined }}
         >
           <div
             className="relative shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
-            style={
-              mode === "fit"
-                ? { height: "100%", maxHeight: "100%", width: "auto", aspectRatio: `${vw} / ${vh}` }
-                : mode === "width"
-                  ? { width: "100%", height: "auto", aspectRatio: `${vw} / ${vh}` }
-                  : { width: `${Math.max(1, zoom * 100)}%`, maxWidth: "none", height: "auto", aspectRatio: `${vw} / ${vh}` }
-            }
+            style={{ width: previewWidth || undefined, height: previewHeight || undefined }}
           >
             <svg
               viewBox={`0 0 ${vw} ${vh}`}
