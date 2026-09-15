@@ -16,6 +16,7 @@ export type DocElement =
       width?: number; // mm, used for center/right alignment box
       text: string;
       gray?: number; // 0 = black, 1 = white
+      fontFamily?: string;
     }
   | {
       kind: "line";
