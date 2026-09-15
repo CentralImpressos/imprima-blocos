@@ -8,13 +8,13 @@ function FontSlider({ label, value, min, max, step, onChange }: { label: string;
 
 export function CompanySettings() {
   const { company, setCompany, doc, setDoc } = useStudio();
-
+  const brandFont = doc.brandFont || doc.titleFont;
   return (
     <div className="flex flex-col gap-3 p-3">
       <LogoUploader />
       <div className="grid grid-cols-2 gap-2">
-        <TextField label="Nome" value={company.name} onChange={(v) => setCompany({ name: v })} placeholder="POLENTA'S" className="col-span-2" />
-        <TextField label="Nome fantasia" value={company.tradeName} onChange={(v) => setCompany({ tradeName: v })} placeholder="POLENTA'S RESTAURANTE E PIZZARIA" className="col-span-2" />
+        <TextField label="Nome" value={company.name} onChange={(v) => setCompany({ name: v })} placeholder="NOME DA EMPRESA" className="col-span-2" />
+        <TextField label="Nome fantasia" value={company.tradeName} onChange={(v) => setCompany({ tradeName: v })} placeholder="NOME FANTASIA" className="col-span-2" />
         <TextField label="CNPJ" value={company.cnpj} onChange={(v) => setCompany({ cnpj: v })} />
         <TextField label="CEP" value={company.zip} onChange={(v) => setCompany({ zip: v })} />
         <TextField label="Endereço" value={company.address} onChange={(v) => setCompany({ address: v })} className="col-span-2" />
@@ -35,10 +35,11 @@ export function CompanySettings() {
 
       <div className="flex flex-col gap-2 border-t border-border pt-3">
         <span className="panel-label">Tipografia</span>
-        <FontSelect label="Fonte da marca" value={doc.brandFont || doc.titleFont} onChange={(v) => setDoc({ brandFont: v })} />
-        <FontSlider label="Tamanho da marca" value={doc.brandSize ?? 12} min={8} max={24} step={0.5} onChange={(v) => setDoc({ brandSize: v })} />
+        <FontSelect label="Fonte do nome da empresa" value={brandFont} onChange={(v) => setDoc({ brandFont: v })} />
+        <FontSlider label="Tamanho do nome da empresa" value={doc.brandSize ?? 12} min={8} max={24} step={0.5} onChange={(v) => setDoc({ brandSize: v })} />
         <FontSelect label="Fonte dos títulos" value={doc.titleFont} onChange={(v) => setDoc({ titleFont: v })} />
         <FontSlider label="Tamanho dos títulos" value={doc.titleSize ?? 11} min={7} max={24} step={0.5} onChange={(v) => setDoc({ titleSize: v })} />
+        <FontSlider label="Tamanho dos totais" value={doc.totalSize ?? 11} min={7} max={24} step={0.5} onChange={(v) => setDoc({ totalSize: v })} />
         <FontSelect label="Fonte do corpo" value={doc.bodyFont} onChange={(v) => setDoc({ bodyFont: v })} />
         <FontSlider label="Tamanho do corpo" value={doc.bodySize ?? 8} min={5} max={14} step={0.5} onChange={(v) => setDoc({ bodySize: v })} />
         <FontSlider label="Tamanho da tabela" value={doc.table.fontSize} min={5} max={14} step={0.5} onChange={(v) => setDoc({ table: { ...doc.table, fontSize: v } })} />
