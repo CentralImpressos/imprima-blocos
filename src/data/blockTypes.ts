@@ -25,7 +25,7 @@ export const BLOCK_TYPES: BlockType[] = [
     description: "Canhoto, serrilha e grampo obrigatórios",
     defaultSizeId: "20x9",
     copies: [1, 2, 3],
-    rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.3 },
+    rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.22 },
     hasItemsTable: false,
   },
   {
@@ -34,7 +34,7 @@ export const BLOCK_TYPES: BlockType[] = [
     description: "Numeração, prêmio e canhoto destacável",
     defaultSizeId: "20x7",
     copies: [1, 2, 3],
-    rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.32 },
+    rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.22 },
     hasItemsTable: false,
   },
   {
@@ -43,7 +43,7 @@ export const BLOCK_TYPES: BlockType[] = [
     description: "Parcela, vencimento, valor e canhoto",
     defaultSizeId: "20x9",
     copies: [1, 2, 3],
-    rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.34 },
+    rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.22 },
     hasItemsTable: false,
   },
 ];
