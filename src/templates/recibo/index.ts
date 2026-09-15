@@ -14,14 +14,10 @@ const line = (x1: number, y: number, x2: number): DocElement => ({
 export const renderRecibo: TemplateRenderer = (ctx: LayoutContext) => {
   const { doc, m, contentW, contentH } = ctx;
   const els: DocElement[] = [];
-  const stubW = ctx.stubH > 0 ? 0 : 0;
-  void stubW;
-
   const header = buildHeader(ctx, { title: doc.title || "RECIBO", subtitle: doc.subtitle, compact: true });
   els.push(...header.els);
   let y = header.y;
 
-  // nº e valor em destaque
   const boxH = 8;
   els.push(
     { kind: "rect", x: m + contentW - 46, y: y - 1, w: 46, h: boxH, stroke: 0.15, lineWidth: 0.5 },
@@ -37,7 +33,7 @@ export const renderRecibo: TemplateRenderer = (ctx: LayoutContext) => {
   );
   y += boxH + 2;
 
-  const bottom = m + contentH - ctx.stubH;
+  const bottom = m + contentH;
   const fH = footerHeight(ctx);
   const sigBlockH = 15;
   const sigY = bottom - fH - sigBlockH;
@@ -72,25 +68,43 @@ export const renderRecibo: TemplateRenderer = (ctx: LayoutContext) => {
 
   els.push(...buildFooter(ctx, bottom - 1));
 
-  // CANHOTO
-  if (ctx.stubH > 0) {
-    const sy = bottom + 3;
+  // CANHOTO: faixa vertical à esquerda.
+  if (ctx.stubW > 0) {
+    const sx = ctx.stubX + 2;
+    const sw = Math.max(ctx.stubW - 4, 8);
     els.push(
-      { kind: "text", x: m, y: sy, size: 7, bold: true, text: "CANHOTO" },
+      { kind: "text", x: sx, y: m + 2, size: 7, bold: true, text: "CANHOTO" },
       {
         kind: "text",
-        x: m,
-        y: sy,
-        size: 7,
+        x: sx,
+        y: m + 10,
+        size: 9,
         bold: true,
-        align: "right",
-        width: contentW,
+        align: "center",
+        width: sw,
         text: `Nº ${doc.fields["numero"] || "0001"}`,
       },
-      { kind: "text", x: m, y: sy + 6, size: 7, text: "Recebido de:", gray: 0.25 },
-      line(m + 22, sy + 6 + ptToMm(7) + 0.5, m + contentW),
-      { kind: "text", x: m, y: sy + 12, size: 7, text: `R$ ${doc.fields["valor"] || "__________"}`, gray: 0.25 },
-      { kind: "text", x: m + 40, y: sy + 12, size: 7, text: "Data: ____/____/______", gray: 0.25 },
+      { kind: "text", x: sx, y: m + 25, size: 6.5, text: "Recebido de:", gray: 0.25 },
+      {
+        kind: "line",
+        x1: sx,
+        y1: m + 38,
+        x2: sx + sw,
+        y2: m + 38,
+        lineWidth: 0.3,
+        gray: 0.35,
+      },
+      { kind: "text", x: sx, y: m + 46, size: 6.5, text: `R$ ${doc.fields["valor"] || "________"}`, gray: 0.25 },
+      { kind: "text", x: sx, y: m + 58, size: 6.5, text: "Data:", gray: 0.25 },
+      {
+        kind: "line",
+        x1: sx,
+        y1: m + 70,
+        x2: sx + sw,
+        y2: m + 70,
+        lineWidth: 0.3,
+        gray: 0.35,
+      },
     );
   }
 
