@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BLOCK_SIZES, getSize } from "@/data/blockSizes";
+import { BLOCK_SIZES } from "@/data/blockSizes";
 import { getType } from "@/data/blockTypes";
 import { COPIES_OPTIONS } from "@/data/finishingOptions";
 import { useStudio } from "@/hooks/useStudio";
@@ -19,6 +19,12 @@ export function BlockSettings() {
   useEffect(() => {
     if (!availableSizes.some((s) => s.id === doc.sizeId)) setDoc({ sizeId: type.defaultSizeId });
   }, [availableSizes, doc.sizeId, setDoc, type.defaultSizeId]);
+
+  useEffect(() => {
+    if (doc.typeId !== "comanda") return;
+    const twoColumns = doc.sizeId !== "9x20";
+    if (doc.table.twoColumns !== twoColumns) setDoc({ table: { ...doc.table, twoColumns } });
+  }, [doc.typeId, doc.sizeId, doc.table, setDoc]);
 
   return <div className="flex flex-col gap-3 p-3">
     <Field label="Nome do projeto"><input className="field-input" value={doc.name} onChange={(e) => setDoc({ name: e.target.value })} /></Field>
