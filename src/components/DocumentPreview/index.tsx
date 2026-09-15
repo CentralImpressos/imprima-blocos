@@ -4,6 +4,7 @@ import { buildDocument } from "@/templates";
 import type { DocElement, RectCorner } from "@/types/template";
 import { getSize } from "@/data/blockSizes";
 import { getType } from "@/data/blockTypes";
+import { ICON_SOLID_FONT } from "@/data/fonts";
 
 type PreviewMode = "fit" | "width" | "zoom";
 const gray = (v = 0) => `rgb(${Math.round(v * 255)},${Math.round(v * 255)},${Math.round(v * 255)})`;
@@ -15,7 +16,12 @@ function roundedRectPath(x: number, y: number, w: number, h: number, radius: num
 }
 
 function Element({ el, i }: { el: DocElement; i: number }) {
-  if (el.kind === "text") { const anchor = el.align === "center" ? "middle" : el.align === "right" ? "end" : "start"; const x = el.align === "center" && el.width ? el.x + el.width / 2 : el.align === "right" && el.width ? el.x + el.width : el.x; return <text key={i} x={x} y={el.y + ptToMm(el.size) * 0.78} fontSize={ptToMm(el.size)} fontWeight={el.bold ? 700 : 400} textAnchor={anchor} fill={gray(el.gray ?? 0)} fontFamily={el.fontFamily || "Inter, Arial, sans-serif"}>{el.text}</text>; }
+  if (el.kind === "text") {
+    const anchor = el.align === "center" ? "middle" : el.align === "right" ? "end" : "start";
+    const x = el.align === "center" && el.width ? el.x + el.width / 2 : el.align === "right" && el.width ? el.x + el.width : el.x;
+    const isSolidIcon = el.fontFamily === ICON_SOLID_FONT;
+    return <text key={i} x={x} y={el.y + ptToMm(el.size) * 0.78} fontSize={ptToMm(el.size)} fontWeight={isSolidIcon ? 900 : el.bold ? 700 : 400} textAnchor={anchor} fill={gray(el.gray ?? 0)} fontFamily={el.fontFamily || "Inter, Arial, sans-serif"}>{el.text}</text>;
+  }
   if (el.kind === "line") return <line key={i} x1={el.x1} y1={el.y1} x2={el.x2} y2={el.y2} stroke={gray(el.gray ?? 0)} strokeWidth={el.lineWidth ?? 0.3} strokeDasharray={el.dash?.join(" ")} />;
   if (el.kind === "rect") { const hasRadius = (el.radius ?? 0) > 0; return hasRadius ? <path key={i} d={roundedRectPath(el.x, el.y, el.w, el.h, el.radius ?? 0, el.corners)} fill={el.fill != null ? gray(el.fill) : "none"} stroke={el.stroke != null ? gray(el.stroke) : "none"} strokeWidth={el.lineWidth ?? 0.3} strokeDasharray={el.dash?.join(" ")} /> : <rect key={i} x={el.x} y={el.y} width={el.w} height={el.h} fill={el.fill != null ? gray(el.fill) : "none"} stroke={el.stroke != null ? gray(el.stroke) : "none"} strokeWidth={el.lineWidth ?? 0.3} strokeDasharray={el.dash?.join(" ")} />; }
   return <image key={i} href={el.src} x={el.x} y={el.y} width={el.w} height={el.h} preserveAspectRatio="xMinYMin meet" />;
