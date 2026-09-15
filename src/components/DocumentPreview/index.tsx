@@ -1,12 +1,39 @@
 import { useMemo } from "react";
 import { useStudio } from "@/hooks/useStudio";
 import { buildDocument } from "@/templates";
-import type { DocElement } from "@/types/template";
+import type { DocElement, RectCorner } from "@/types/template";
 import { getSize } from "@/data/blockSizes";
 import { getType } from "@/data/blockTypes";
 
 const gray = (v = 0) => `rgb(${Math.round(v * 255)},${Math.round(v * 255)},${Math.round(v * 255)})`;
 const ptToMm = (pt: number) => (pt * 25.4) / 72;
+
+function roundedRectPath(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number,
+  corners: RectCorner[] = ["tl", "tr", "br", "bl"],
+) {
+  const r = Math.min(radius, w / 2, h / 2);
+  const tl = corners.includes("tl");
+  const tr = corners.includes("tr");
+  const br = corners.includes("br");
+  const bl = corners.includes("bl");
+  return [
+    `M ${x + (tl ? r : 0)} ${y}`,
+    `L ${x + w - (tr ? r : 0)} ${y}`,
+    tr ? `A ${r} ${r} 0 0 1 ${x + w} ${y + r}` : `L ${x + w} ${y}`,
+    `L ${x + w} ${y + h - (br ? r : 0)}`,
+    br ? `A ${r} ${r} 0 0 1 ${x + w - r} ${y + h}` : `L ${x + w} ${y + h}`,
+    `L ${x + (bl ? r : 0)} ${y + h}`,
+    bl ? `A ${r} ${r} 0 0 1 ${x} ${y + h - r}` : `L ${x} ${y + h}`,
+    `L ${x} ${y + (tl ? r : 0)}`,
+    tl ? `A ${r} ${r} 0 0 1 ${x + r} ${y}` : `L ${x} ${y}`,
+    "Z",
+  ].join(" ");
+}
 
 function Element({ el, i }: { el: DocElement; i: number }) {
   if (el.kind === "text") {
@@ -47,7 +74,17 @@ function Element({ el, i }: { el: DocElement; i: number }) {
     );
   }
   if (el.kind === "rect") {
-    return (
+    const hasRadius = (el.radius ?? 0) > 0;
+    return hasRadius ? (
+      <path
+        key={i}
+        d={roundedRectPath(el.x, el.y, el.w, el.h, el.radius ?? 0, el.corners)}
+        fill={el.fill != null ? gray(el.fill) : "none"}
+        stroke={el.stroke != null ? gray(el.stroke) : "none"}
+        strokeWidth={el.lineWidth ?? 0.3}
+        strokeDasharray={el.dash?.join(" ")}
+      />
+    ) : (
       <rect
         key={i}
         x={el.x}
@@ -138,6 +175,7 @@ export function DocumentPreview() {
         {doc.serrilha && <span className="text-primary">Serrilha</span>}
         {doc.grampo && <span className="text-primary">Grampo</span>}
         {doc.canhoto && <span className="text-primary">Canhoto</span>}
+        {doc.roundedCorners && <span className="text-primary">Cantos arredondados</span>}
       </div>
     </div>
   );
