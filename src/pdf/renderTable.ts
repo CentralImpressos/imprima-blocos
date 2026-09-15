@@ -8,10 +8,11 @@ interface Opts {
   w: number;
   maxH: number;
   table: TableConfig;
+  roundedCorners?: boolean;
 }
 
 /** Desenha a tabela de forma vetorial (linhas + texto). Suporta duas colunas de blocos. */
-export function buildTableElements({ x, y, w, maxH, table }: Opts): {
+export function buildTableElements({ x, y, w, maxH, table, roundedCorners = false }: Opts): {
   els: DocElement[];
   y: number;
 } {
@@ -26,6 +27,7 @@ export function buildTableElements({ x, y, w, maxH, table }: Opts): {
   const visibleRows = table.fillRows ? maxRows : Math.min(rowsPerBlock, maxRows);
   const lw = table.borderWidth;
   const stroke = table.showBorders ? 0.15 : null;
+  const radius = Math.min(1.8, headerH / 3);
 
   for (let b = 0; b < blocks; b++) {
     const bx = x + b * (colW + gap);
@@ -33,8 +35,18 @@ export function buildTableElements({ x, y, w, maxH, table }: Opts): {
     const rows = table.rows.slice(b * rowsPerBlock, b * rowsPerBlock + visibleRows);
     while (rows.length < visibleRows) rows.push({ id: `blank-${b}-${rows.length}`, cells: [] });
 
-    // cabeçalho
-    els.push({ kind: "rect", x: bx, y: by, w: colW, h: headerH, fill: 0.88, stroke, lineWidth: lw });
+    // Cabeçalho: somente os dois cantos externos superiores são arredondados.
+    els.push({
+      kind: "rect",
+      x: bx,
+      y: by,
+      w: colW,
+      h: headerH,
+      fill: 0.88,
+      stroke,
+      lineWidth: lw,
+      ...(roundedCorners ? { radius, corners: ["tl", "tr"] } : {}),
+    });
     let cx = bx;
     table.columns.forEach((c) => {
       const cw = (c.widthPct / 100) * colW;
@@ -52,9 +64,19 @@ export function buildTableElements({ x, y, w, maxH, table }: Opts): {
     });
     by += headerH;
 
-    rows.forEach((r) => {
+    rows.forEach((r, ri) => {
+      const isLastRow = ri === rows.length - 1;
       if (stroke !== null) {
-        els.push({ kind: "rect", x: bx, y: by, w: colW, h: table.rowHeightMm, stroke, lineWidth: lw });
+        els.push({
+          kind: "rect",
+          x: bx,
+          y: by,
+          w: colW,
+          h: table.rowHeightMm,
+          stroke,
+          lineWidth: lw,
+          ...(roundedCorners && isLastRow ? { radius, corners: ["bl", "br"] } : {}),
+        });
       } else {
         els.push({
           kind: "line",
