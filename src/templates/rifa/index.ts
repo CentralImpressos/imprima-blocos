@@ -11,7 +11,16 @@ export const renderRifa: TemplateRenderer = (ctx: LayoutContext) => {
   const numero = doc.fields["numero"] || "0001";
   const numW = 34;
   els.push(
-    { kind: "rect", x: m + contentW - numW, y: y - 2, w: numW, h: 11, stroke: 0.15, lineWidth: 0.6 },
+    {
+      kind: "rect",
+      x: m + contentW - numW,
+      y: y - 2,
+      w: numW,
+      h: 11,
+      stroke: 0.15,
+      lineWidth: 0.6,
+      ...(doc.roundedCorners ? { radius: 1.8 } : {}),
+    },
     {
       kind: "text",
       x: m + contentW - numW,
