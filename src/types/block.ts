@@ -17,6 +17,7 @@ export interface BlockDoc {
   brandFont?: string; titleFont: string; bodyFont: string;
   /** tamanho da marca em pt */ brandSize?: number;
   /** tamanho-base dos títulos em pt */ titleSize: number;
+  /** tamanho dos totais/valores destacados em pt */ totalSize: number;
   /** tamanho-base dos textos do corpo em pt */ bodySize: number;
   title: string; subtitle: string; fields: Record<string, string>; table: TableConfig; footer: FooterConfig; updatedAt: number;
 }
