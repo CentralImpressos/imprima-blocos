@@ -118,12 +118,12 @@ export function DocumentPreview() {
   const vh = built.heightMm + b * 2;
   const stageRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState({ width: 0, height: 0 });
+  // Sempre inicia em Ajustar. O modo escolhido anteriormente não deve alterar
+  // a primeira visualização de um novo carregamento da aplicação.
   const [mode, setMode] = useState<PreviewMode>("fit");
   const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
-    const saved = localStorage.getItem("imprima-blocos-preview-mode");
-    if (saved === "fit" || saved === "width" || saved === "zoom") setMode(saved);
     const savedZoom = Number(localStorage.getItem("imprima-blocos-preview-zoom"));
     if (savedZoom >= 0.5 && savedZoom <= 3) setZoom(savedZoom);
   }, []);
@@ -140,14 +140,12 @@ export function DocumentPreview() {
 
   const changeMode = (next: PreviewMode) => {
     setMode(next);
-    localStorage.setItem("imprima-blocos-preview-mode", next);
   };
 
   const changeZoom = (next: number) => {
     const value = Math.min(3, Math.max(0.5, next));
     setZoom(value);
     setMode("zoom");
-    localStorage.setItem("imprima-blocos-preview-mode", "zoom");
     localStorage.setItem("imprima-blocos-preview-zoom", String(value));
   };
 
@@ -158,13 +156,17 @@ export function DocumentPreview() {
         : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
     }`;
 
-  const fitWidth = stage.width > 0 && stage.height > 0
-    ? Math.min(stage.width, stage.height * (vw / vh))
+  // O stage contém um wrapper com p-4 (16px de cada lado). O cálculo precisa
+  // usar a área interna real para que Ajustar não gere nem 1px de rolagem.
+  const availableWidth = Math.max(0, stage.width - 32);
+  const availableHeight = Math.max(0, stage.height - 32);
+  const fitWidth = availableWidth > 0 && availableHeight > 0
+    ? Math.min(availableWidth, availableHeight * (vw / vh))
     : 0;
-  const widthModeWidth = stage.width;
+  const widthModeWidth = availableWidth;
   const previewWidth = mode === "fit" ? fitWidth : mode === "width" ? widthModeWidth : fitWidth * zoom;
   const previewHeight = previewWidth > 0 ? previewWidth * (vh / vw) : 0;
-  const isOversized = previewWidth > stage.width || previewHeight > stage.height;
+  const isOversized = previewWidth > availableWidth || previewHeight > availableHeight;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background p-4">
