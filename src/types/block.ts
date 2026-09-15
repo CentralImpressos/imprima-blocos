@@ -14,7 +14,8 @@ export interface FooterConfig {
 export interface BlockDoc {
   id: string; name: string; typeId: BlockTypeId; sizeId: string; copies: 1 | 2 | 3;
   serrilha: boolean; grampo: boolean; canhoto: boolean; stubRatio: number; roundedCorners: boolean;
-  titleFont: string; bodyFont: string;
+  brandFont: string; titleFont: string; bodyFont: string;
+  /** tamanho da marca em pt */ brandSize: number;
   /** tamanho-base dos títulos em pt */ titleSize: number;
   /** tamanho-base dos textos do corpo em pt */ bodySize: number;
   title: string; subtitle: string; fields: Record<string, string>; table: TableConfig; footer: FooterConfig; updatedAt: number;
