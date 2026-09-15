@@ -4,7 +4,7 @@ import { buildDocument } from "@/templates";
 import type { DocElement, RectCorner } from "@/types/template";
 import { getSize } from "@/data/blockSizes";
 import { getType } from "@/data/blockTypes";
-import { ICON_SOLID_FONT } from "@/data/fonts";
+import { ICON_PATHS, ICON_VIEWBOX } from "@/data/fonts";
 
 type PreviewMode = "fit" | "width" | "zoom";
 const gray = (v = 0) => `rgb(${Math.round(v * 255)},${Math.round(v * 255)},${Math.round(v * 255)})`;
@@ -19,8 +19,13 @@ function Element({ el, i }: { el: DocElement; i: number }) {
   if (el.kind === "text") {
     const anchor = el.align === "center" ? "middle" : el.align === "right" ? "end" : "start";
     const x = el.align === "center" && el.width ? el.x + el.width / 2 : el.align === "right" && el.width ? el.x + el.width : el.x;
-    const isSolidIcon = el.fontFamily === ICON_SOLID_FONT;
-    return <text key={i} x={x} y={el.y + ptToMm(el.size) * 0.78} fontSize={ptToMm(el.size)} fontWeight={isSolidIcon ? 900 : el.bold ? 700 : 400} textAnchor={anchor} fill={gray(el.gray ?? 0)} fontFamily={el.fontFamily || "Inter, Arial, sans-serif"}>{el.text}</text>;
+    return <text key={i} x={x} y={el.y + ptToMm(el.size) * 0.78} fontSize={ptToMm(el.size)} fontWeight={el.bold ? 700 : 400} textAnchor={anchor} fill={gray(el.gray ?? 0)} fontFamily={el.fontFamily || "Inter, Arial, sans-serif"}>{el.text}</text>;
+  }
+  if (el.kind === "icon") {
+    const [vbW, vbH] = ICON_VIEWBOX[el.icon];
+    const h = ptToMm(el.size);
+    const w = h * (vbW / vbH);
+    return <svg key={i} x={el.x} y={el.y} width={w} height={h} viewBox={`0 0 ${vbW} ${vbH}`} aria-hidden="true"><path d={ICON_PATHS[el.icon]} fill={gray(el.gray ?? 0)} /></svg>;
   }
   if (el.kind === "line") return <line key={i} x1={el.x1} y1={el.y1} x2={el.x2} y2={el.y2} stroke={gray(el.gray ?? 0)} strokeWidth={el.lineWidth ?? 0.3} strokeDasharray={el.dash?.join(" ")} />;
   if (el.kind === "rect") { const hasRadius = (el.radius ?? 0) > 0; return hasRadius ? <path key={i} d={roundedRectPath(el.x, el.y, el.w, el.h, el.radius ?? 0, el.corners)} fill={el.fill != null ? gray(el.fill) : "none"} stroke={el.stroke != null ? gray(el.stroke) : "none"} strokeWidth={el.lineWidth ?? 0.3} strokeDasharray={el.dash?.join(" ")} /> : <rect key={i} x={el.x} y={el.y} width={el.w} height={el.h} fill={el.fill != null ? gray(el.fill) : "none"} stroke={el.stroke != null ? gray(el.stroke) : "none"} strokeWidth={el.lineWidth ?? 0.3} strokeDasharray={el.dash?.join(" ")} />; }
@@ -30,9 +35,9 @@ function Element({ el, i }: { el: DocElement; i: number }) {
 export function DocumentPreview() {
   const { company, doc, production, logoAspect } = useStudio(); const built = useMemo(() => buildDocument(company, doc, production, logoAspect), [company, doc, production, logoAspect]); const size = getSize(doc.sizeId); const type = getType(doc.typeId); const b = production.showBleed ? production.bleedMm : 0; const vw = built.widthMm + b * 2; const vh = built.heightMm + b * 2; const stageRef = useRef<HTMLDivElement>(null); const [stage, setStage] = useState({ width: 0, height: 0 }); const [mode, setMode] = useState<PreviewMode>("fit"); const [zoom, setZoom] = useState(1);
   useEffect(() => { const savedZoom = Number(localStorage.getItem("imprima-blocos-preview-zoom")); if (savedZoom >= 0.5 && savedZoom <= 3) setZoom(savedZoom); }, []);
-  useEffect(() => { void Promise.all([document.fonts.load('900 16px "Font Awesome 6 Free"'), document.fonts.load('400 16px "Font Awesome 6 Brands"')]); }, []);
   useEffect(() => { const node = stageRef.current; if (!node) return; const update = () => setStage({ width: node.clientWidth, height: node.clientHeight }); update(); const observer = new ResizeObserver(update); observer.observe(node); return () => observer.disconnect(); }, []);
   const changeMode = (next: PreviewMode) => setMode(next); const changeZoom = (next: number) => { const value = Math.min(3, Math.max(0.5, next)); setZoom(value); setMode("zoom"); localStorage.setItem("imprima-blocos-preview-zoom", String(value)); }; const buttonClass = (active: boolean) => `rounded-[3px] border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide transition-colors ${active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"}`;
+
   const availableWidth = Math.max(0, stage.width - 32); const availableHeight = Math.max(0, stage.height - 32); const fitWidth = availableWidth > 0 && availableHeight > 0 ? Math.min(availableWidth, availableHeight * (vw / vh)) : 0; const widthModeWidth = availableWidth; const previewWidth = mode === "fit" ? fitWidth : mode === "width" ? widthModeWidth : fitWidth * zoom; const previewHeight = previewWidth > 0 ? previewWidth * (vh / vw) : 0; const isOversized = previewWidth > availableWidth || previewHeight > availableHeight;
 
   return <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background p-4 pb-3">
