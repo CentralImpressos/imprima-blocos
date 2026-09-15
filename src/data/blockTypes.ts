@@ -1,4 +1,5 @@
 import type { BlockDoc, BlockType, BlockTypeId, TableConfig } from "@/types/block";
+import { DEFAULT_BODY_FONT, DEFAULT_TITLE_FONT } from "./fonts";
 
 export const BLOCK_TYPES: BlockType[] = [
   {
@@ -51,28 +52,10 @@ export const BLOCK_TYPES: BlockType[] = [
 export const getType = (id: BlockTypeId): BlockType =>
   BLOCK_TYPES.find((t) => t.id === id) ?? BLOCK_TYPES[0]!;
 
-// Conteúdo demonstrativo propositalmente genérico: ajuda a visualizar uma
-// comanda real sem amarrar o template a um cliente ou estabelecimento.
 const COMANDA_ITEMS = [
-  "Hambúrguer",
-  "Sanduíche",
-  "Porção",
-  "Prato",
-  "Massa",
-  "Salada",
-  "Sobremesa",
-  "Cerveja 600ml",
-  "Cerveja long",
-  "Drink",
-  "Vinho",
-  "Refri 290ml",
-  "Refri lata",
-  "Refri 600ml",
-  "Refri 1 lt",
-  "Suco",
-  "Energético",
-  "Dose",
-  "Água Mineral",
+  "Hambúrguer", "Sanduíche", "Porção", "Prato", "Massa", "Salada", "Sobremesa",
+  "Cerveja 600ml", "Cerveja long", "Drink", "Vinho", "Refri 290ml", "Refri lata",
+  "Refri 600ml", "Refri 1 lt", "Suco", "Energético", "Dose", "Água Mineral",
 ];
 
 const rid = () => crypto.randomUUID();
@@ -128,6 +111,8 @@ export function applyTypeRules(doc: BlockDoc): BlockDoc {
   return {
     ...doc,
     roundedCorners: doc.roundedCorners ?? false,
+    titleFont: doc.titleFont || DEFAULT_TITLE_FONT,
+    bodyFont: doc.bodyFont || DEFAULT_BODY_FONT,
     serrilha: t.rules.serrilha === "required" ? true : t.rules.serrilha === "none" ? false : doc.serrilha,
     grampo: t.rules.grampo === "required" ? true : t.rules.grampo === "none" ? false : doc.grampo,
     canhoto: t.rules.canhoto === "required",
@@ -148,11 +133,12 @@ export function createBlockDoc(typeId: BlockTypeId, name?: string): BlockDoc {
     canhoto: false,
     stubRatio: t.rules.stubRatio,
     roundedCorners: false,
+    titleFont: DEFAULT_TITLE_FONT,
+    bodyFont: DEFAULT_BODY_FONT,
     title: t.label.toUpperCase(),
     subtitle: "",
     fields: defaultFields(typeId),
-    table:
-      typeId === "comanda" ? comandaTable() : typeId === "pedido" ? pedidoTable() : emptyTable(),
+    table: typeId === "comanda" ? comandaTable() : typeId === "pedido" ? pedidoTable() : emptyTable(),
     footer: {
       showName: true,
       showAddress: true,
@@ -180,13 +166,7 @@ export function defaultFields(typeId: BlockTypeId): Record<string, string> {
     case "recibo":
       return { numero: "0001", valor: "", referente: "" };
     case "rifa":
-      return {
-        numero: "0001",
-        premio: "Descreva o prêmio",
-        sorteio: "",
-        valorCota: "",
-        promocao: "",
-      };
+      return { numero: "0001", premio: "Descreva o prêmio", sorteio: "", valorCota: "", promocao: "" };
     case "carne":
       return { numero: "0001", parcela: "01/12", vencimento: "", valor: "", cliente: "" };
     default:
