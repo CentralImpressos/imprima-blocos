@@ -20,7 +20,16 @@ export const renderRecibo: TemplateRenderer = (ctx: LayoutContext) => {
 
   const boxH = 8;
   els.push(
-    { kind: "rect", x: m + contentW - 46, y: y - 1, w: 46, h: boxH, stroke: 0.15, lineWidth: 0.5 },
+    {
+      kind: "rect",
+      x: m + contentW - 46,
+      y: y - 1,
+      w: 46,
+      h: boxH,
+      stroke: 0.15,
+      lineWidth: 0.5,
+      ...(doc.roundedCorners ? { radius: 1.8 } : {}),
+    },
     {
       kind: "text",
       x: m + contentW - 44,
