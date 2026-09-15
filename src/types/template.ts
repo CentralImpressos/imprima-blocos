@@ -3,6 +3,8 @@ import type { BlockDoc, BlockSize } from "./block";
 
 export type Align = "left" | "center" | "right";
 
+export type RectCorner = "tl" | "tr" | "br" | "bl";
+
 export type DocElement =
   | {
       kind: "text";
@@ -35,6 +37,10 @@ export type DocElement =
       stroke?: number | null;
       fill?: number | null;
       dash?: number[];
+      /** raio dos cantos externos em mm */
+      radius?: number;
+      /** cantos que devem ser arredondados; omitido = todos */
+      corners?: RectCorner[];
     }
   | {
       kind: "image";
