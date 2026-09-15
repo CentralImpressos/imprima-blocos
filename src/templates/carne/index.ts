@@ -46,9 +46,10 @@ export const renderCarne: TemplateRenderer = (ctx: LayoutContext) => {
 
   els.push(...buildFooter(ctx, bottom - 1));
 
-  // CANHOTO: faixa vertical à esquerda.
+  // CANHOTO: o index.ts desloca todo o conteúdo principal para a direita.
+  // Por isso o canhoto é desenhado inicialmente à esquerda e acompanha esse deslocamento.
   if (ctx.stubW > 0) {
-    const sx = ctx.stubX + 2;
+    const sx = ctx.stubX + 2 - ctx.stubW;
     const sw = Math.max(ctx.stubW - 4, 8);
     els.push(
       { kind: "text", x: sx, y: m + 2, size: 6.5, bold: true, text: "CANHOTO" },
