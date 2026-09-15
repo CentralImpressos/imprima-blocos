@@ -9,13 +9,13 @@ export type DocElement =
   | {
       kind: "text";
       x: number;
-      y: number; // baseline-top reference (mm, top-left origin)
-      size: number; // pt
+      y: number;
+      size: number;
       bold?: boolean;
       align?: Align;
-      width?: number; // mm, used for center/right alignment box
+      width?: number;
       text: string;
-      gray?: number; // 0 = black, 1 = white
+      gray?: number;
       fontFamily?: string;
     }
   | {
@@ -38,9 +38,7 @@ export type DocElement =
       stroke?: number | null;
       fill?: number | null;
       dash?: number[];
-      /** raio dos cantos externos em mm */
       radius?: number;
-      /** cantos que devem ser arredondados; omitido = todos */
       corners?: RectCorner[];
     }
   | {
@@ -56,15 +54,14 @@ export interface LayoutContext {
   company: Company;
   doc: BlockDoc;
   size: BlockSize;
-  /** área útil principal (dentro da margem segura e à direita do canhoto) */
+  /** margem segura horizontal e referência X da área útil */
   m: number;
+  /** deslocamento vertical adicional para acabamentos superiores */
+  topOffsetMm: number;
   contentW: number;
   contentH: number;
-  /** largura do canhoto em mm (0 se não houver) */
   stubW: number;
-  /** posição X do início do canhoto */
   stubX: number;
-  /** mantido para compatibilidade interna: 0 no novo layout vertical */
   stubH: number;
   logoBox: { w: number; h: number } | null;
 }
