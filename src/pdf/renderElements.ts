@@ -79,9 +79,11 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
       });
     } else if (el.kind === "rect") {
       if ((el.radius ?? 0) > 0) {
-        const bottom = ctx.pageHMm - (el.y + el.h + ctx.offsetMm);
+        // drawSvgPath usa coordenadas SVG (Y para baixo), portanto o ponto
+        // de origem deve ser o topo do retângulo em coordenadas PDF.
+        const top = ctx.pageHMm - (el.y + ctx.offsetMm);
         const x = mmToPt(el.x + ctx.offsetMm);
-        const y = mmToPt(bottom);
+        const y = mmToPt(top);
         const w = mmToPt(el.w);
         const h = mmToPt(el.h);
         const radius = mmToPt(el.radius ?? 0);
