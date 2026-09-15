@@ -101,13 +101,13 @@ function Studio() {
         </main>
 
         <aside className="flex min-h-0 flex-col overflow-hidden border-l border-border bg-surface">
-          <div className="flex flex-wrap gap-1.5 border-b border-border p-3">
+          <div className="flex flex-wrap gap-1 border-b border-border p-2.5">
             {TABS.filter((t) => t.id !== "tabela" || hasTable).map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "rounded-[3px] px-3.5 py-2 text-sm font-semibold uppercase tracking-wide transition-colors",
+                  "rounded-[3px] px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wide transition-colors",
                   tab === t.id
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-secondary",
