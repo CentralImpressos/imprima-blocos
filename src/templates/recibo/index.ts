@@ -68,9 +68,10 @@ export const renderRecibo: TemplateRenderer = (ctx: LayoutContext) => {
 
   els.push(...buildFooter(ctx, bottom - 1));
 
-  // CANHOTO: faixa vertical à esquerda.
+  // CANHOTO: o index.ts desloca todo o conteúdo principal para a direita.
+  // Por isso o canhoto é desenhado inicialmente à esquerda e acompanha esse deslocamento.
   if (ctx.stubW > 0) {
-    const sx = ctx.stubX + 2;
+    const sx = ctx.stubX + 2 - ctx.stubW;
     const sw = Math.max(ctx.stubW - 4, 8);
     els.push(
       { kind: "text", x: sx, y: m + 2, size: 7, bold: true, text: "CANHOTO" },
@@ -85,26 +86,10 @@ export const renderRecibo: TemplateRenderer = (ctx: LayoutContext) => {
         text: `Nº ${doc.fields["numero"] || "0001"}`,
       },
       { kind: "text", x: sx, y: m + 25, size: 6.5, text: "Recebido de:", gray: 0.25 },
-      {
-        kind: "line",
-        x1: sx,
-        y1: m + 38,
-        x2: sx + sw,
-        y2: m + 38,
-        lineWidth: 0.3,
-        gray: 0.35,
-      },
+      { kind: "line", x1: sx, y1: m + 38, x2: sx + sw, y2: m + 38, lineWidth: 0.3, gray: 0.35 },
       { kind: "text", x: sx, y: m + 46, size: 6.5, text: `R$ ${doc.fields["valor"] || "________"}`, gray: 0.25 },
       { kind: "text", x: sx, y: m + 58, size: 6.5, text: "Data:", gray: 0.25 },
-      {
-        kind: "line",
-        x1: sx,
-        y1: m + 70,
-        x2: sx + sw,
-        y2: m + 70,
-        lineWidth: 0.3,
-        gray: 0.35,
-      },
+      { kind: "line", x1: sx, y1: m + 70, x2: sx + sw, y2: m + 70, lineWidth: 0.3, gray: 0.35 },
     );
   }
 
