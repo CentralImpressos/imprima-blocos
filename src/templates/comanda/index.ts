@@ -32,6 +32,6 @@ export const renderComanda: TemplateRenderer = (ctx: LayoutContext) => {
     { kind: "rect", x: m, y: ty, w: contentW, h: totalH, stroke: 0.15, lineWidth: 0.5, ...(doc.roundedCorners ? { radius: 1.8 } : {}) },
     { kind: "text", x: m + 2, y: ty + (totalH - ptToMm(totalSize)) / 2, size: totalSize, bold: true, text: doc.fields["totalLabel"] || "TOTAL R$" },
   );
-  els.push(...buildFooter(ctx, bottom - 3));
+  els.push(...buildFooter(ctx, bottom));
   return els;
 };
