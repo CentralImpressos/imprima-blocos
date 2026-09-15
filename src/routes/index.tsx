@@ -70,23 +70,23 @@ function Studio() {
     <div className="flex h-screen flex-col bg-background">
       <header className="shrink-0 border-b border-border bg-surface">
         <CmykBar />
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-          <div className="flex items-baseline gap-3">
-            <h1 className="font-display text-base font-bold uppercase tracking-[0.18em] text-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div className="flex items-baseline gap-4">
+            <h1 className="font-display text-lg font-bold uppercase tracking-[0.18em] text-foreground">
               Imprima Cooper
             </h1>
-            <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="text-sm uppercase tracking-[0.14em] text-muted-foreground">
               Gerador de Blocos
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Btn onClick={() => newBlock(doc.typeId)}>Novo bloco</Btn>
             <PdfExport />
           </div>
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)_480px]">
         <aside className="min-h-0 overflow-auto border-r border-border bg-surface">
           <SectionTitle>Tipo de bloco</SectionTitle>
           <TemplateSelector />
@@ -101,13 +101,13 @@ function Studio() {
         </main>
 
         <aside className="flex min-h-0 flex-col overflow-hidden border-l border-border bg-surface">
-          <div className="flex flex-wrap gap-1 border-b border-border p-2">
+          <div className="flex flex-wrap gap-1.5 border-b border-border p-3">
             {TABS.filter((t) => t.id !== "tabela" || hasTable).map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "rounded-[3px] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors",
+                  "rounded-[3px] px-3.5 py-2 text-sm font-semibold uppercase tracking-wide transition-colors",
                   tab === t.id
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-secondary",
