@@ -125,6 +125,7 @@ export function applyTypeRules(doc: BlockDoc): BlockDoc {
   const t = getType(doc.typeId);
   return {
     ...doc,
+    roundedCorners: doc.roundedCorners ?? false,
     serrilha: t.rules.serrilha === "required" ? true : t.rules.serrilha === "none" ? false : doc.serrilha,
     grampo: t.rules.grampo === "required" ? true : t.rules.grampo === "none" ? false : doc.grampo,
     canhoto: t.rules.canhoto === "required",
@@ -144,6 +145,7 @@ export function createBlockDoc(typeId: BlockTypeId, name?: string): BlockDoc {
     grampo: false,
     canhoto: false,
     stubRatio: t.rules.stubRatio,
+    roundedCorners: false,
     title: t.label.toUpperCase(),
     subtitle: "",
     fields: defaultFields(typeId),
