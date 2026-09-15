@@ -116,8 +116,8 @@ export function DocumentPreview() {
   const vh = built.heightMm + b * 2;
 
   return (
-    <div className="flex h-full flex-col items-center justify-start gap-3 overflow-auto bg-background p-6">
-      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+    <div className="flex h-full min-h-0 flex-col items-center overflow-hidden bg-background p-4">
+      <div className="flex shrink-0 items-center gap-3 pb-3 text-[11px] uppercase tracking-wider text-muted-foreground">
         <span className="font-semibold text-foreground">{type.label}</span>
         <span>{size.label}</span>
         <span>
@@ -126,50 +126,48 @@ export function DocumentPreview() {
         <span>{doc.copies} via(s)</span>
       </div>
 
-      <div
-        className="relative shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
-        style={{
-          width: "100%",
-          maxWidth: `min(100%, ${vw * 3.2}px)`,
-          aspectRatio: `${vw} / ${vh}`,
-        }}
-      >
-        <svg
-          viewBox={`0 0 ${vw} ${vh}`}
-          className="h-full w-full bg-white"
-          style={{ outline: "1px solid var(--color-border-strong)" }}
+      <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center">
+        <div
+          className="relative h-full max-h-full w-auto max-w-full shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
+          style={{ aspectRatio: `${vw} / ${vh}` }}
         >
-          {b > 0 && (
-            <rect x={0} y={0} width={vw} height={vh} fill="var(--color-accent)" opacity={0.5} />
-          )}
-          <g transform={`translate(${b} ${b})`}>
-            <rect x={0} y={0} width={built.widthMm} height={built.heightMm} fill="#ffffff" />
-            {built.guides.map((el, i) => (
-              <Element key={`g${i}`} el={el} i={i} />
-            ))}
-            {built.content.map((el, i) => (
-              <Element key={`c${i}`} el={el} i={i} />
-            ))}
-            {built.production.map((el, i) => (
-              <Element key={`p${i}`} el={el} i={i} />
-            ))}
-            {built.stubY !== null && (
-              <text
-                x={built.widthMm - 2}
-                y={built.stubY - 1}
-                fontSize={2.2}
-                textAnchor="end"
-                fill="var(--color-primary)"
-                fontFamily="Helvetica, Arial, sans-serif"
-              >
-                SERRILHA
-              </text>
+          <svg
+            viewBox={`0 0 ${vw} ${vh}`}
+            className="h-full w-full bg-white"
+            style={{ outline: "1px solid var(--color-border-strong)" }}
+          >
+            {b > 0 && (
+              <rect x={0} y={0} width={vw} height={vh} fill="var(--color-accent)" opacity={0.5} />
             )}
-          </g>
-        </svg>
+            <g transform={`translate(${b} ${b})`}>
+              <rect x={0} y={0} width={built.widthMm} height={built.heightMm} fill="#ffffff" />
+              {built.guides.map((el, i) => (
+                <Element key={`g${i}`} el={el} i={i} />
+              ))}
+              {built.content.map((el, i) => (
+                <Element key={`c${i}`} el={el} i={i} />
+              ))}
+              {built.production.map((el, i) => (
+                <Element key={`p${i}`} el={el} i={i} />
+              ))}
+              {built.stubY !== null && (
+                <text
+                  x={built.widthMm - 2}
+                  y={built.stubY - 1}
+                  fontSize={2.2}
+                  textAnchor="end"
+                  fill="var(--color-primary)"
+                  fontFamily="Helvetica, Arial, sans-serif"
+                >
+                  SERRILHA
+                </text>
+              )}
+            </g>
+          </svg>
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+      <div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-1 pt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {production.showBleed && <span>Sangria {production.bleedMm} mm</span>}
         <span>Margem segura {production.safeMm} mm</span>
         {doc.serrilha && <span className="text-primary">Serrilha</span>}
