@@ -29,13 +29,14 @@ function footerFontSize(ctx: LayoutContext): number {
 }
 
 export function buildHeader(ctx: LayoutContext, opts: { title?: string; subtitle?: string; compact?: boolean } = {}): { els: DocElement[]; y: number } {
-  const { company, doc, m, contentW } = ctx; const els: DocElement[] = []; let y = m; const compact = opts.compact ?? false; const logoH = (compact ? 10 : 14) * (company.logoScale || 1); let textX = m; let textW = contentW;
+  const { company, doc, m, contentW } = ctx; const els: DocElement[] = []; let y = m + ctx.topOffsetMm; const compact = opts.compact ?? false; const logoH = (compact ? 10 : 14) * (company.logoScale || 1); let textX = m; let textW = contentW;
   if (ctx.logoBox) { const h = logoH; const w = Math.min((ctx.logoBox.w / ctx.logoBox.h) * h, contentW * 0.45); els.push({ kind: "image", x: m + company.logoOffsetX, y: y + company.logoOffsetY, w, h, src: company.logo as string }); textX = m + w + 4; textW = contentW - w - 4; }
-  const brandSize = doc.brandSize ?? 12; els.push({ kind: "text", x: textX, y, size: compact ? Math.min(brandSize, 10) : brandSize, bold: true, text: company.tradeName || company.name || "NOME DA EMPRESA", align: "left", width: textW, fontFamily: doc.brandFont || doc.titleFont }); y += ptToMm(compact ? Math.min(brandSize, 10) : brandSize) + 1;
+  // brandSize é aplicado diretamente também nos templates compactos (recibo/rifa/carnê).
+  const brandSize = doc.brandSize ?? 12; els.push({ kind: "text", x: textX, y, size: brandSize, bold: true, text: company.tradeName || company.name || "NOME DA EMPRESA", align: "left", width: textW, fontFamily: doc.brandFont || doc.titleFont }); y += ptToMm(brandSize) + 1;
   const sub = opts.subtitle || company.name; if (sub && sub !== (company.tradeName || company.name)) { const subSize = compact ? 6.5 : 7.5; els.push({ kind: "text", x: textX, y, size: subSize, text: sub, gray: 0.35, fontFamily: doc.bodyFont }); y += ptToMm(subSize) + 0.6; }
   const addr = fullAddress(company); if (addr) { addIconText(els, textX, y, 6.5, "location", addr, doc.bodyFont); y += ptToMm(6.5) + 0.6; }
   let contactX = textX; if (company.phone) contactX = addIconText(els, contactX, y, 6.5, "phone", company.phone, doc.bodyFont); if (company.whatsapp) contactX = addIconText(els, contactX, y, 6.5, "whatsapp", company.whatsapp, doc.bodyFont); if (contactX > textX) y += ptToMm(6.5) + 0.6;
-  y = Math.max(y, m + (ctx.logoBox ? logoH : 0)) + 2; els.push({ kind: "line", x1: m, y1: y, x2: m + contentW, y2: y, lineWidth: 0.6 }); y += 3;
+  y = Math.max(y, m + ctx.topOffsetMm + (ctx.logoBox ? logoH : 0)) + 2; els.push({ kind: "line", x1: m, y1: y, x2: m + contentW, y2: y, lineWidth: 0.6 }); y += 3;
   if (opts.title) { const titleSize = doc.titleSize ?? (compact ? 9 : 11); els.push({ kind: "text", x: m, y, size: titleSize, bold: true, align: "center", width: contentW, text: opts.title, fontFamily: doc.titleFont }); y += ptToMm(titleSize) + 2.5; }
   return { els, y };
 }
