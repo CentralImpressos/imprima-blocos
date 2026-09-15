@@ -19,9 +19,12 @@ function applyFonts(els: DocElement[], bodyFont: string): DocElement[] { return 
 export function buildDocument(company: Company, doc: BlockDoc, prod: ProductionSettings, logoAspect: number | null): BuiltDocument {
   const size = getSize(doc.sizeId);
   const safe = prod.safeMm;
-  const topOffsetMm = doc.typeId === "comanda" ? 9 : 0;
+  // Todo bloco retrato reserva uma faixa superior para acabamento (grampo/cola).
+  // A comanda precisa de uma faixa maior porque seu grampo e sua serrilha ficam no topo.
+  const isPortrait = size.heightMm > size.widthMm;
+  const topOffsetMm = isPortrait ? (doc.typeId === "comanda" ? 9 : 6) : 0;
   const fullContentW = size.widthMm - safe * 2;
-  const contentH = size.heightMm - safe * 2;
+  const contentH = size.heightMm - safe * 2 - topOffsetMm;
   const stubW = doc.canhoto ? Math.round(fullContentW * doc.stubRatio) : 0;
   const stubX = doc.canhoto ? safe : 0;
   const m = safe;
