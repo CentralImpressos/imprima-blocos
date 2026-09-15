@@ -27,28 +27,10 @@ export const renderCarne: TemplateRenderer = (ctx: LayoutContext) => {
   const boxH = 10;
   const halfW = contentW / 2 - 2;
   els.push(
-    {
-      kind: "rect",
-      x: m,
-      y,
-      w: halfW,
-      h: boxH,
-      stroke: 0.15,
-      lineWidth: 0.4,
-      ...(doc.roundedCorners ? { radius: 1.8 } : {}),
-    },
+    { kind: "rect", x: m, y, w: halfW, h: boxH, stroke: 0.15, lineWidth: 0.4, ...(doc.roundedCorners ? { radius: 1.8 } : {}) },
     { kind: "text", x: m + 1.5, y: y + 1, size: 6, text: "VENCIMENTO", gray: 0.35 },
     { kind: "text", x: m + 1.5, y: y + 4.6, size: 9, bold: true, text: venc },
-    {
-      kind: "rect",
-      x: m + halfW + 4,
-      y,
-      w: halfW,
-      h: boxH,
-      stroke: 0.15,
-      lineWidth: 0.4,
-      ...(doc.roundedCorners ? { radius: 1.8 } : {}),
-    },
+    { kind: "rect", x: m + halfW + 4, y, w: halfW, h: boxH, stroke: 0.15, lineWidth: 0.4, ...(doc.roundedCorners ? { radius: 1.8 } : {}) },
     { kind: "text", x: m + halfW + 5.5, y: y + 1, size: 6, text: "VALOR", gray: 0.35 },
     { kind: "text", x: m + halfW + 5.5, y: y + 4.6, size: 9, bold: true, text: `R$ ${valor}` },
   );
@@ -62,13 +44,11 @@ export const renderCarne: TemplateRenderer = (ctx: LayoutContext) => {
     { kind: "line", x1: m, y1: payY + 7, x2: m + contentW, y2: payY + 7, lineWidth: 0.25, gray: 0.5 },
   );
 
-  els.push(...buildFooter(ctx, bottom - 1));
+  els.push(...buildFooter(ctx, bottom));
 
-  // CANHOTO: o index.ts desloca todo o conteúdo principal para a direita.
-  // Por isso o canhoto é desenhado inicialmente à esquerda e acompanha esse deslocamento.
   if (ctx.stubW > 0) {
-    const sx = ctx.stubX + 2 - ctx.stubW;
-    const sw = Math.max(ctx.stubW - 4, 8);
+    const sx = ctx.stubX + 3 - ctx.stubW - 3;
+    const sw = Math.max(ctx.stubW - 6, 8);
     els.push(
       { kind: "text", x: sx, y: m + 2, size: 6.5, bold: true, text: "CANHOTO" },
       { kind: "text", x: sx, y: m + 12, size: 8, bold: true, align: "center", width: sw, text: `Nº ${numero}` },
