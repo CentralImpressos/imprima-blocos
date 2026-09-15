@@ -20,11 +20,13 @@ export function buildTableElements({ x, y, w, maxH, table, roundedCorners = fals
   const gap = 4;
   const blocks = table.twoColumns ? 2 : 1;
   const colW = (w - gap * (blocks - 1)) / blocks;
+  // Divide a lista uma única vez entre os blocos. Isso evita repetir os mesmos
+  // itens na segunda coluna quando a tabela possui duas colunas.
   const rowsPerBlock = Math.ceil(Math.max(table.rows.length, 1) / blocks);
   const headerH = table.rowHeightMm;
   const available = Math.max(0, maxH);
   const maxRows = Math.max(1, Math.floor((available - headerH) / table.rowHeightMm));
-  const visibleRows = table.fillRows ? maxRows : Math.min(rowsPerBlock, maxRows);
+  const visibleRows = Math.min(rowsPerBlock, maxRows);
   const lw = table.borderWidth;
   const stroke = table.showBorders ? 0.15 : null;
   const radius = Math.min(1.8, headerH / 3);
@@ -32,8 +34,12 @@ export function buildTableElements({ x, y, w, maxH, table, roundedCorners = fals
   for (let b = 0; b < blocks; b++) {
     const bx = x + b * (colW + gap);
     let by = y;
-    const rows = table.rows.slice(b * rowsPerBlock, b * rowsPerBlock + visibleRows);
-    while (rows.length < visibleRows) rows.push({ id: `blank-${b}-${rows.length}`, cells: [] });
+    const start = b * rowsPerBlock;
+    const rows = table.rows.slice(start, start + visibleRows);
+    const displayRows = [...rows];
+    while (displayRows.length < visibleRows) {
+      displayRows.push({ id: `blank-${b}-${displayRows.length}`, cells: [] });
+    }
 
     // Cabeçalho: somente os dois cantos externos superiores são arredondados.
     els.push({
@@ -64,8 +70,8 @@ export function buildTableElements({ x, y, w, maxH, table, roundedCorners = fals
     });
     by += headerH;
 
-    rows.forEach((r, ri) => {
-      const isLastRow = ri === rows.length - 1;
+    displayRows.forEach((r, ri) => {
+      const isLastRow = ri === displayRows.length - 1;
       if (stroke !== null) {
         els.push({
           kind: "rect",
