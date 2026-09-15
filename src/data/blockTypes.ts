@@ -2,7 +2,7 @@ import type { BlockDoc, BlockType, BlockTypeId, TableConfig } from "@/types/bloc
 import { DEFAULT_BODY_FONT, DEFAULT_TITLE_FONT } from "./fonts";
 
 export const BLOCK_TYPES: BlockType[] = [
-  { id: "comanda", label: "Comanda", description: "Tabela de itens com preenchimento manual", defaultSizeId: "14x20", copies: [1, 2, 3], rules: { serrilha: "optional", grampo: "optional", canhoto: "none", stubRatio: 0 }, hasItemsTable: true },
+  { id: "comanda", label: "Comanda", description: "Tabela de itens com grampo superior e serrilha horizontal", defaultSizeId: "14x20", copies: [1, 2, 3], rules: { serrilha: "required", grampo: "required", canhoto: "none", stubRatio: 0 }, hasItemsTable: true },
   { id: "pedido", label: "Pedido", description: "Qtd / Descrição / Observação com linhas em branco", defaultSizeId: "14x20", copies: [1, 2, 3], rules: { serrilha: "optional", grampo: "optional", canhoto: "none", stubRatio: 0 }, hasItemsTable: true },
   { id: "recibo", label: "Recibo", description: "Canhoto, serrilha e grampo obrigatórios", defaultSizeId: "20x9", copies: [1, 2, 3], rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.22 }, hasItemsTable: false },
   { id: "rifa", label: "Rifa", description: "Numeração, prêmio e canhoto destacável", defaultSizeId: "20x7", copies: [1, 2, 3], rules: { serrilha: "required", grampo: "required", canhoto: "required", stubRatio: 0.22 }, hasItemsTable: false },
