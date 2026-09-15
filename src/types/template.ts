@@ -49,11 +49,15 @@ export interface LayoutContext {
   company: Company;
   doc: BlockDoc;
   size: BlockSize;
-  /** área útil (dentro da margem segura) */
+  /** área útil principal (dentro da margem segura e à direita do canhoto) */
   m: number;
   contentW: number;
   contentH: number;
-  /** altura do canhoto em mm (0 se não houver) */
+  /** largura do canhoto em mm (0 se não houver) */
+  stubW: number;
+  /** posição X do início do canhoto */
+  stubX: number;
+  /** mantido para compatibilidade interna: 0 no novo layout vertical */
   stubH: number;
   logoBox: { w: number; h: number } | null;
 }
