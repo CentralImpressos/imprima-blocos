@@ -30,6 +30,7 @@ export function DocumentEditor() {
   const { doc, setDoc } = useStudio();
   const fields = FIELDS[doc.typeId];
   const brandFont = doc.brandFont || doc.titleFont;
+  const hasTable = doc.typeId === "comanda" || doc.typeId === "pedido";
   return (
     <div className="flex flex-col gap-2 p-3">
       <TextField label="Título do documento" value={doc.title} onChange={(v) => setDoc({ title: v })} />
@@ -43,7 +44,7 @@ export function DocumentEditor() {
         <SizeSlider label="Tamanho dos totais" value={doc.totalSize} min={7} max={24} step={0.5} onChange={(v) => setDoc({ totalSize: v })} />
         <FontSelect label="Fonte do corpo" value={doc.bodyFont} onChange={(v) => setDoc({ bodyFont: v })} />
         <SizeSlider label="Tamanho do corpo" value={doc.bodySize} min={5} max={14} step={0.5} onChange={(v) => setDoc({ bodySize: v })} />
-        <SizeSlider label="Tamanho da tabela" value={doc.table.fontSize} min={5} max={14} step={0.5} onChange={(v) => setDoc({ table: { ...doc.table, fontSize: v } })} />
+        {hasTable && <SizeSlider label="Tamanho da tabela" value={doc.table.fontSize} min={5} max={14} step={0.5} onChange={(v) => setDoc({ table: { ...doc.table, fontSize: v } })} />}
       </div>
       {fields.map(([key, label]) => <TextField key={key} label={label} value={doc.fields[key] ?? ""} onChange={(v) => setDoc({ fields: { ...doc.fields, [key]: v } })} />)}
       {doc.typeId === "rifa" && <p className="text-[10px] text-muted-foreground">A numeração sequencial automática será adicionada em versão futura.</p>}
