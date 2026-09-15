@@ -27,6 +27,7 @@ export interface BuiltDocument {
   /** guias apenas de tela (sangria, área segura) */
   guides: DocElement[];
   stubY: number | null;
+  stubX: number | null;
 }
 
 export function buildDocument(
@@ -36,10 +37,16 @@ export function buildDocument(
   logoAspect: number | null,
 ): BuiltDocument {
   const size = getSize(doc.sizeId);
-  const m = prod.safeMm;
-  const contentW = size.widthMm - m * 2;
-  const contentH = size.heightMm - m * 2;
-  const stubH = doc.canhoto ? Math.round(contentH * doc.stubRatio) : 0;
+  const safe = prod.safeMm;
+  const fullContentW = size.widthMm - safe * 2;
+  const contentH = size.heightMm - safe * 2;
+
+  // Recibo, rifa e carnê usam canhoto vertical à esquerda.
+  // O stubRatio continua representando a proporção da largura útil ocupada pelo canhoto.
+  const stubW = doc.canhoto ? Math.round(fullContentW * doc.stubRatio) : 0;
+  const stubX = doc.canhoto ? safe : 0;
+  const m = safe + stubW;
+  const contentW = fullContentW - stubW;
 
   const ctx: LayoutContext = {
     company,
@@ -48,34 +55,36 @@ export function buildDocument(
     m,
     contentW,
     contentH,
-    stubH,
+    stubW,
+    stubX,
+    stubH: 0,
     logoBox: company.logo && logoAspect ? { w: logoAspect, h: 1 } : null,
   };
 
   const content = RENDERERS[doc.typeId](ctx);
 
   const production: DocElement[] = [];
-  const stubY = stubH > 0 ? m + contentH - stubH : null;
+  const stubXLine = doc.canhoto ? safe + stubW : null;
 
-  if (stubY !== null && doc.serrilha && prod.showSerrilha) {
+  if (stubXLine !== null && doc.serrilha && prod.showSerrilha) {
     production.push({
       kind: "line",
-      x1: 0,
-      y1: stubY,
-      x2: size.widthMm,
-      y2: stubY,
+      x1: stubXLine,
+      y1: 0,
+      x2: stubXLine,
+      y2: size.heightMm,
       lineWidth: 0.4,
       dash: [2, 1.6],
       gray: 0.45,
     });
-  } else if (doc.serrilha && prod.showSerrilha && stubY === null) {
-    // serrilha de destaque na base do bloco
+  } else if (doc.serrilha && prod.showSerrilha && stubXLine === null) {
+    // Serrilha opcional de destaque na lateral esquerda quando não existe canhoto.
     production.push({
       kind: "line",
-      x1: 0,
-      y1: size.heightMm - 6,
-      x2: size.widthMm,
-      y2: size.heightMm - 6,
+      x1: 6,
+      y1: 0,
+      x2: 6,
+      y2: size.heightMm,
       lineWidth: 0.4,
       dash: [2, 1.6],
       gray: 0.45,
@@ -124,9 +133,9 @@ export function buildDocument(
   if (prod.showSafe) {
     guides.push({
       kind: "rect",
-      x: m,
-      y: m,
-      w: contentW,
+      x: safe,
+      y: safe,
+      w: fullContentW,
       h: contentH,
       stroke: 0.7,
       lineWidth: 0.2,
@@ -134,13 +143,13 @@ export function buildDocument(
       fill: null,
     });
   }
-  if (stubY !== null) {
+  if (stubXLine !== null) {
     guides.push({
       kind: "rect",
-      x: 0,
-      y: stubY,
-      w: size.widthMm,
-      h: stubH,
+      x: safe,
+      y: 0,
+      w: stubW,
+      h: size.heightMm,
       fill: 0.97,
       stroke: null,
     });
@@ -152,6 +161,7 @@ export function buildDocument(
     content,
     production,
     guides,
-    stubY,
+    stubY: null,
+    stubX: stubXLine,
   };
 }
