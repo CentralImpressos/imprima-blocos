@@ -82,6 +82,12 @@ export function BlockSettings() {
           hint={rules.grampo === "required" ? "obrigatório" : undefined}
           onChange={(v) => rules.grampo === "optional" && setDoc({ grampo: v })}
         />
+        <Check
+          label="Cantos arredondados"
+          checked={doc.roundedCorners}
+          hint="externos"
+          onChange={(v) => setDoc({ roundedCorners: v })}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
