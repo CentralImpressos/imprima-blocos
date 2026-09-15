@@ -27,6 +27,12 @@ function shiftElementX(el: DocElement, dx: number): DocElement {
   return { ...el, x: el.x + dx };
 }
 
+function shiftElementY(el: DocElement, dy: number): DocElement {
+  if (dy === 0) return el;
+  if (el.kind === "line") return { ...el, y1: el.y1 + dy, y2: el.y2 + dy };
+  return { ...el, y: el.y + dy };
+}
+
 function applyFonts(els: DocElement[], bodyFont: string): DocElement[] {
   return els.map((el) => (el.kind === "text" && !el.fontFamily ? { ...el, fontFamily: bodyFont } : el));
 }
@@ -39,30 +45,39 @@ export function buildDocument(company: Company, doc: BlockDoc, prod: ProductionS
   const stubW = doc.canhoto ? Math.round(fullContentW * doc.stubRatio) : 0;
   const stubX = doc.canhoto ? safe : 0;
   const m = safe;
-  const contentW = fullContentW - stubW;
   const ctx: LayoutContext = {
-    company, doc, size, m, contentW, contentH, stubW, stubX, stubH: 0,
+    company, doc, size, m, contentW: fullContentW - stubW, contentH, stubW, stubX, stubH: 0,
     logoBox: company.logo && logoAspect ? { w: logoAspect, h: 1 } : null,
   };
 
   const rawContent = RENDERERS[doc.typeId](ctx);
-  const content = applyFonts(stubW > 0 ? rawContent.map((el) => shiftElementX(el, stubW)) : rawContent, doc.bodyFont);
+  const contentTopOffset = doc.typeId === "comanda" ? 9 : 0;
+  const shiftedContent = rawContent.map((el) => shiftElementY(el, contentTopOffset));
+  const content = applyFonts(stubW > 0 ? shiftedContent.map((el) => shiftElementX(el, stubW)) : shiftedContent, doc.bodyFont);
 
   const production: DocElement[] = [];
   const stubXLine = doc.canhoto ? safe + stubW : null;
 
-  if (stubXLine !== null && doc.serrilha && prod.showSerrilha) {
-    production.push({ kind: "line", x1: stubXLine, y1: 0, x2: stubXLine, y2: size.heightMm, lineWidth: 0.4, dash: [2, 1.6], gray: 0.45 });
-  } else if (doc.serrilha && prod.showSerrilha && stubXLine === null) {
-    production.push({ kind: "line", x1: 6, y1: 0, x2: 6, y2: size.heightMm, lineWidth: 0.4, dash: [2, 1.6], gray: 0.45 });
+  if (doc.serrilha && prod.showSerrilha) {
+    if (doc.typeId === "comanda") {
+      production.push({ kind: "line", x1: safe, y1: 7, x2: size.widthMm - safe, y2: 7, lineWidth: 0.4, dash: [2, 1.6], gray: 0.45 });
+    } else if (stubXLine !== null) {
+      production.push({ kind: "line", x1: stubXLine, y1: 0, x2: stubXLine, y2: size.heightMm, lineWidth: 0.4, dash: [2, 1.6], gray: 0.45 });
+    } else {
+      production.push({ kind: "line", x1: 6, y1: 0, x2: 6, y2: size.heightMm, lineWidth: 0.4, dash: [2, 1.6], gray: 0.45 });
+    }
   }
 
   if (doc.grampo && prod.showGrampo) {
-    const cx = size.widthMm / 2;
-    production.push(
-      { kind: "rect", x: cx - 6, y: 1.2, w: 12, h: 2.2, fill: 0.55, stroke: null },
-      { kind: "text", x: cx - 20, y: 4, size: 4.5, width: 40, align: "center", text: "GRAMPO", gray: 0.55 },
-    );
+    if (doc.typeId === "comanda") {
+      const cx = size.widthMm / 2;
+      production.push(
+        { kind: "rect", x: cx - 6, y: 1.2, w: 12, h: 2.2, fill: 0.55, stroke: null },
+        { kind: "text", x: cx - 20, y: 4, size: 4.5, width: 40, align: "center", text: "GRAMPO", gray: 0.55 },
+      );
+    } else {
+      production.push({ kind: "rect", x: 1.2, y: size.heightMm / 2 - 6, w: 2.2, h: 12, fill: 0.55, stroke: null });
+    }
   }
 
   if (prod.showCrop) {
@@ -82,12 +97,8 @@ export function buildDocument(company: Company, doc: BlockDoc, prod: ProductionS
   }
 
   const guides: DocElement[] = [];
-  if (prod.showSafe) {
-    guides.push({ kind: "rect", x: safe, y: safe, w: fullContentW, h: contentH, stroke: 0.7, lineWidth: 0.2, dash: [1.5, 1.5], fill: null });
-  }
-  if (stubXLine !== null) {
-    guides.push({ kind: "rect", x: safe, y: safe, w: stubW, h: contentH, fill: 0.97, stroke: null });
-  }
+  if (prod.showSafe) guides.push({ kind: "rect", x: safe, y: safe, w: fullContentW, h: contentH, stroke: 0.7, lineWidth: 0.2, dash: [1.5, 1.5], fill: null });
+  if (stubXLine !== null) guides.push({ kind: "rect", x: safe, y: safe, w: stubW, h: contentH, fill: 0.97, stroke: null });
 
   return { widthMm: size.widthMm, heightMm: size.heightMm, content, production: applyFonts(production, doc.bodyFont), guides, stubY: null, stubX: stubXLine };
 }
