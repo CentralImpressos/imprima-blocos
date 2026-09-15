@@ -1,5 +1,5 @@
 import { rgb, type PDFFont, type PDFPage, type PDFImage } from "pdf-lib";
-import type { DocElement } from "@/types/template";
+import type { DocElement, RectCorner } from "@/types/template";
 import { mmToPt } from "@/templates/shared";
 
 export interface DrawCtx {
@@ -20,6 +20,31 @@ function toPt(ctx: DrawCtx, xMm: number, yMm: number) {
     x: mmToPt(xMm + ctx.offsetMm),
     y: mmToPt(ctx.pageHMm - (yMm + ctx.offsetMm)),
   };
+}
+
+function roundedRectSvgPath(
+  w: number,
+  h: number,
+  radius: number,
+  corners: RectCorner[] = ["tl", "tr", "br", "bl"],
+) {
+  const r = Math.min(radius, w / 2, h / 2);
+  const tl = corners.includes("tl");
+  const tr = corners.includes("tr");
+  const br = corners.includes("br");
+  const bl = corners.includes("bl");
+  return [
+    `M ${tl ? r : 0} ${h}`,
+    `L ${w - (tr ? r : 0)} ${h}`,
+    tr ? `A ${r} ${r} 0 0 1 ${w} ${h - r}` : `L ${w} ${h}`,
+    `L ${w} ${br ? r : 0}`,
+    br ? `A ${r} ${r} 0 0 1 ${w - r} 0` : `L ${w} 0`,
+    `L ${bl ? r : 0} 0`,
+    bl ? `A ${r} ${r} 0 0 1 0 ${r}` : `L 0 0`,
+    `L 0 ${h - (tl ? r : 0)}`,
+    tl ? `A ${r} ${r} 0 0 1 ${r} ${h}` : `L 0 ${h}`,
+    "Z",
+  ].join(" ");
 }
 
 export function drawElements(ctx: DrawCtx, els: DocElement[]) {
@@ -53,17 +78,33 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
         ...(el.dash ? { dashArray: el.dash.map(mmToPt) } : {}),
       });
     } else if (el.kind === "rect") {
-      const p = toPt(ctx, el.x, el.y + el.h);
-      ctx.page.drawRectangle({
-        x: p.x,
-        y: p.y,
-        width: mmToPt(el.w),
-        height: mmToPt(el.h),
-        borderWidth: el.stroke != null ? mmToPt(el.lineWidth ?? 0.3) : 0,
-        ...(el.stroke != null ? { borderColor: g(el.stroke) } : {}),
-        ...(el.fill != null ? { color: g(el.fill) } : {}),
-        ...(el.dash ? { borderDashArray: el.dash.map(mmToPt) } : {}),
-      });
+      if ((el.radius ?? 0) > 0) {
+        const bottom = ctx.pageHMm - (el.y + el.h + ctx.offsetMm);
+        const x = mmToPt(el.x + ctx.offsetMm);
+        const y = mmToPt(bottom);
+        const w = mmToPt(el.w);
+        const h = mmToPt(el.h);
+        const radius = mmToPt(el.radius ?? 0);
+        ctx.page.drawSvgPath(roundedRectSvgPath(w, h, radius, el.corners), {
+          x,
+          y,
+          ...(el.stroke != null ? { borderColor: g(el.stroke), borderWidth: mmToPt(el.lineWidth ?? 0.3) } : {}),
+          ...(el.fill != null ? { color: g(el.fill) } : {}),
+          ...(el.dash ? { borderDashArray: el.dash.map(mmToPt) } : {}),
+        });
+      } else {
+        const p = toPt(ctx, el.x, el.y + el.h);
+        ctx.page.drawRectangle({
+          x: p.x,
+          y: p.y,
+          width: mmToPt(el.w),
+          height: mmToPt(el.h),
+          borderWidth: el.stroke != null ? mmToPt(el.lineWidth ?? 0.3) : 0,
+          ...(el.stroke != null ? { borderColor: g(el.stroke) } : {}),
+          ...(el.fill != null ? { color: g(el.fill) } : {}),
+          ...(el.dash ? { borderDashArray: el.dash.map(mmToPt) } : {}),
+        });
+      }
     } else if (el.kind === "image" && ctx.logo) {
       const p = toPt(ctx, el.x, el.y + el.h);
       ctx.page.drawImage(ctx.logo, {
