@@ -1,5 +1,6 @@
 import type { Company } from "./company";
 import type { BlockDoc, BlockSize } from "./block";
+import type { IconName } from "@/data/fonts";
 
 export type Align = "left" | "center" | "right";
 
@@ -17,6 +18,14 @@ export type DocElement =
       text: string;
       gray?: number;
       fontFamily?: string;
+    }
+  | {
+      kind: "icon";
+      x: number;
+      y: number;
+      size: number;
+      icon: IconName;
+      gray?: number;
     }
   | {
       kind: "line";
