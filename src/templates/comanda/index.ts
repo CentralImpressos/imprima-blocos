@@ -39,13 +39,29 @@ export const renderComanda: TemplateRenderer = (ctx: LayoutContext) => {
   const bottom = m + contentH - ctx.stubH;
   const tableMaxH = bottom - fH - totalH - y - 2;
 
-  const t = buildTableElements({ x: m, y, w: contentW, maxH: tableMaxH, table: doc.table });
+  const t = buildTableElements({
+    x: m,
+    y,
+    w: contentW,
+    maxH: tableMaxH,
+    table: doc.table,
+    roundedCorners: doc.roundedCorners,
+  });
   els.push(...t.els);
 
   // área de total
   const ty = bottom - fH - totalH;
   els.push(
-    { kind: "rect", x: m, y: ty, w: contentW, h: totalH, stroke: 0.15, lineWidth: 0.5 },
+    {
+      kind: "rect",
+      x: m,
+      y: ty,
+      w: contentW,
+      h: totalH,
+      stroke: 0.15,
+      lineWidth: 0.5,
+      ...(doc.roundedCorners ? { radius: 1.8 } : {}),
+    },
     {
       kind: "text",
       x: m + 2,
