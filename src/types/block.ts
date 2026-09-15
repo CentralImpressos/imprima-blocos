@@ -67,6 +67,10 @@ export interface BlockDoc {
   stubRatio: number;
   /** arredonda apenas os cantos externos de tabelas e caixas retangulares */
   roundedCorners: boolean;
+  /** fonte Google Fonts usada nos títulos */
+  titleFont: string;
+  /** fonte Google Fonts usada no corpo */
+  bodyFont: string;
   title: string;
   subtitle: string;
   fields: Record<string, string>;
