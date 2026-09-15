@@ -31,6 +31,6 @@ export const renderPedido: TemplateRenderer = (ctx: LayoutContext) => {
   );
 
   if (obsLines > 0) { let oy = bottom - fH - obsH + 1; els.push({ kind: "text", x: m, y: oy, size: s, bold: true, text: "OBSERVAÇÕES:" }); oy += 5; for (let i = 0; i < obsLines; i++) els.push({ kind: "line", x1: m, y1: oy + i * 5, x2: m + contentW, y2: oy + i * 5, lineWidth: 0.25, gray: 0.5 }); }
-  els.push(...buildFooter(ctx, bottom - 3));
+  els.push(...buildFooter(ctx, bottom));
   return els;
 };
