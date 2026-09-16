@@ -18,8 +18,20 @@ function toPt(ctx: DrawCtx, xMm: number, yMm: number) { return { x: mmToPt(xMm +
 
 function roundedRectSvgPath(w: number, h: number, radius: number, corners: RectCorner[] = ["tl", "tr", "br", "bl"]) {
   const r = Math.min(radius, w / 2, h / 2);
+  const k = 0.5522847498;
   const tl = corners.includes("tl"), tr = corners.includes("tr"), br = corners.includes("br"), bl = corners.includes("bl");
-  return [`M ${tl ? r : 0} ${h}`, `L ${w - (tr ? r : 0)} ${h}`, tr ? `A ${r} ${r} 0 0 1 ${w} ${h - r}` : `L ${w} ${h}`, `L ${w} ${br ? r : 0}`, br ? `A ${r} ${r} 0 0 1 ${w - r} 0` : `L ${w} 0`, `L ${bl ? r : 0} 0`, bl ? `A ${r} ${r} 0 0 1 0 ${r}` : `L 0 0`, `L 0 ${h - (tl ? r : 0)}`, tl ? `A ${r} ${r} 0 0 1 ${r} ${h}` : `L 0 ${h}`, "Z"].join(" ");
+  const x0 = 0, x1 = w, y0 = 0, y1 = h;
+  const parts: string[] = [`M ${tl ? r : x0} ${y1}`];
+  parts.push(`L ${tr ? x1 - r : x1} ${y1}`);
+  if (tr) parts.push(`C ${x1 - r + k * r} ${y1} ${x1} ${y1 - r + k * r} ${x1} ${y1 - r}`);
+  parts.push(`L ${x1} ${br ? y0 + r : y0}`);
+  if (br) parts.push(`C ${x1} ${y0 + r - k * r} ${x1 - r + k * r} ${y0} ${x1 - r} ${y0}`);
+  parts.push(`L ${bl ? x0 + r : x0} ${y0}`);
+  if (bl) parts.push(`C ${x0 + r - k * r} ${y0} ${x0} ${y0 + r - k * r} ${x0} ${y0 + r}`);
+  parts.push(`L ${x0} ${y1 - (tl ? r : 0)}`);
+  if (tl) parts.push(`C ${x0} ${y1 - r + k * r} ${x0 + r - k * r} ${y1} ${x0 + r} ${y1}`);
+  parts.push("Z");
+  return parts.join(" ");
 }
 
 export function drawElements(ctx: DrawCtx, els: DocElement[]) {
@@ -28,9 +40,8 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
       const family = el.fontFamily || "Helvetica";
       const pair = ctx.fonts?.get(family);
       const font = pair ? (el.bold ? pair.bold : pair.regular) : (el.bold ? ctx.bold : ctx.regular);
-      let text = el.text ?? "";
+      const text = el.text ?? "";
       if (!text) continue;
-      text = sanitize(text);
       const widthPt = font.widthOfTextAtSize(text, el.size);
       let xMm = el.x;
       if (el.width && el.align === "center") xMm = el.x + (el.width - widthPt / (72 / 25.4)) / 2;
@@ -69,5 +80,3 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
     }
   }
 }
-
-function sanitize(t: string) { return t.replace(/[^\u0000-\u00FF]/g, "-"); }
