@@ -1,4 +1,4 @@
-import { rgb, type PDFFont, type PDFPage, type PDFImage } from "pdf-lib";
+import { rgb, type PDFFont, type PDFPage, type PDFImage, degrees } from "pdf-lib";
 import type { DocElement, RectCorner } from "@/types/template";
 import { ICON_PATHS, ICON_VIEWBOX } from "@/data/fonts";
 import { mmToPt } from "@/templates/shared";
@@ -37,7 +37,7 @@ function roundedRectSvgPath(w: number, h: number, radius: number, corners: RectC
   parts.push(`L ${bl ? x0 + r : x0} ${y0}`);
   if (bl) parts.push(`C ${x0 + r - k * r} ${y0} ${x0} ${y0 + r - k * r} ${x0} ${y0 + r}`);
   parts.push(`L ${x0} ${y1 - (tl ? r : 0)}`);
-  if (tl) parts.push(`C ${x0} ${y1 - r + k * r} ${x0 + r - k * r} ${y1} ${x0 + r} ${y1}`);
+  if (tl) parts.push(`C ${x0 + r - k * r} ${y1 - r + k * r} ${x0 + r} ${y1} ${x0 + r} ${y1}`);
   parts.push("Z");
   return parts.join(" ");
 }
@@ -58,20 +58,22 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
       const p = toPt(ctx, xMm, baselineMm);
       ctx.page.drawText(text, { x: p.x, y: p.y, size: el.size, font, color: g(el.gray ?? 0) });
     } else if (el.kind === "icon") {
-      // Ícones permanecem como paths vetoriais. Isso evita depender do
-      // mapeamento de glifos Unicode das fontes Font Awesome no PDF e, mais
-      // importante, usa exatamente a mesma geometria vetorial do preview.
+      // O preview usa um SVG com viewBox em coordenadas Y-down. O PDF usa
+      // coordenadas Y-up, então apenas inverter o path em torno do próprio
+      // retângulo do viewBox faz o ícone ocupar exatamente a mesma caixa
+      // visual do preview, sem alterar el.x/el.y.
       const [vbW, vbH] = ICON_VIEWBOX[el.icon];
       const scale = el.size / vbH;
       const iconWPt = vbW * scale;
       const iconHpt = vbH * scale;
-      const x = mmToPt(el.x + ctx.offsetMm);
-      // el.y é o topo visual do ícone. drawSvgPath recebe o canto inferior.
-      const y = mmToPt(ctx.pageHMm - (el.y + ctx.offsetMm)) - iconHpt;
+      const leftPt = mmToPt(el.x + ctx.offsetMm);
+      const bottomPt = mmToPt(ctx.pageHMm - (el.y + ctx.offsetMm)) - iconHpt;
+
       ctx.page.drawSvgPath(ICON_PATHS[el.icon], {
-        x,
-        y,
+        x: leftPt + iconWPt,
+        y: bottomPt + iconHpt,
         scale,
+        rotate: degrees(180),
         color: g(el.gray ?? 0),
       });
     } else if (el.kind === "line") {
