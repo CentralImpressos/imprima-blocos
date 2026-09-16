@@ -1,4 +1,4 @@
-import { rgb, type PDFFont, type PDFPage, type PDFImage, degrees } from "pdf-lib";
+import { rgb, type PDFFont, type PDFPage, type PDFImage } from "pdf-lib";
 import type { DocElement, RectCorner } from "@/types/template";
 import { ICON_PATHS, ICON_VIEWBOX } from "@/data/fonts";
 import { mmToPt } from "@/templates/shared";
@@ -58,22 +58,18 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
       const p = toPt(ctx, xMm, baselineMm);
       ctx.page.drawText(text, { x: p.x, y: p.y, size: el.size, font, color: g(el.gray ?? 0) });
     } else if (el.kind === "icon") {
-      // O preview usa um SVG com viewBox em coordenadas Y-down. O PDF usa
-      // coordenadas Y-up, então apenas inverter o path em torno do próprio
-      // retângulo do viewBox faz o ícone ocupar exatamente a mesma caixa
-      // visual do preview, sem alterar el.x/el.y.
-      const [vbW, vbH] = ICON_VIEWBOX[el.icon];
+      // O preview usa um SVG com viewBox em coordenadas Y-down. O próprio
+      // drawSvgPath do pdf-lib já faz a inversão do eixo Y, portanto não
+      // devemos aplicar uma rotação ou deslocamento adicional.
+      const [, vbH] = ICON_VIEWBOX[el.icon];
       const scale = el.size / vbH;
-      const iconWPt = vbW * scale;
-      const iconHpt = vbH * scale;
-      const leftPt = mmToPt(el.x + ctx.offsetMm);
-      const bottomPt = mmToPt(ctx.pageHMm - (el.y + ctx.offsetMm)) - iconHpt;
+      const xPt = mmToPt(el.x + ctx.offsetMm);
+      const yPt = mmToPt(ctx.pageHMm - (el.y + ctx.offsetMm));
 
       ctx.page.drawSvgPath(ICON_PATHS[el.icon], {
-        x: leftPt + iconWPt,
-        y: bottomPt + iconHpt,
+        x: xPt,
+        y: yPt,
         scale,
-        rotate: degrees(180),
         color: g(el.gray ?? 0),
       });
     } else if (el.kind === "line") {
