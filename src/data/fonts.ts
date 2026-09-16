@@ -87,7 +87,7 @@ export const ICON_PATHS = {
 export type IconName = keyof typeof ICON_GLYPHS;
 
 export function googleFontsCssUrl(): string {
-  const families = GOOGLE_FONTS.map((font) => {
+  const families = GOOGLE_FONTS.map((font) => {    
     const family = encodeURIComponent(font).replace(/%20/g, "+");
     return `family=${family}:wght@${FONT_WEIGHTS[font]}`;
   }).join("&");
