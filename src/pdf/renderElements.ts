@@ -1,6 +1,6 @@
 import { rgb, type PDFFont, type PDFPage, type PDFImage } from "pdf-lib";
 import type { DocElement, RectCorner } from "@/types/template";
-import { ICON_PATHS, ICON_VIEWBOX } from "@/data/fonts";
+import { ICON_GLYPHS, ICON_PATHS, ICON_VIEWBOX, ICON_BRANDS_FONT, ICON_SOLID_FONT } from "@/data/fonts";
 import { mmToPt, ptToMm } from "@/templates/shared";
 
 export interface DrawCtx {
@@ -19,7 +19,15 @@ function toPt(ctx: DrawCtx, xMm: number, yMm: number) { return { x: mmToPt(xMm +
 function roundedRectSvgPath(w: number, h: number, radius: number, corners: RectCorner[] = ["tl", "tr", "br", "bl"]) {
   const r = Math.min(radius, w / 2, h / 2);
   const k = 0.5522847498;
-  const tl = corners.includes("tl"), tr = corners.includes("tr"), br = corners.includes("br"), bl = corners.includes("bl");
+
+  // drawSvgPath trabalha com o eixo Y invertido em relação ao nosso
+  // sistema de layout (origem no topo). Portanto, os nomes visuais dos
+  // cantos precisam ser espelhados verticalmente no caminho PDF.
+  const tl = corners.includes("bl");
+  const tr = corners.includes("br");
+  const br = corners.includes("tr");
+  const bl = corners.includes("tl");
+
   const x0 = 0, x1 = w, y0 = 0, y1 = h;
   const parts: string[] = [`M ${tl ? r : x0} ${y1}`];
   parts.push(`L ${tr ? x1 - r : x1} ${y1}`);
@@ -33,6 +41,8 @@ function roundedRectSvgPath(w: number, h: number, radius: number, corners: RectC
   parts.push("Z");
   return parts.join(" ");
 }
+
+const BRAND_ICONS = new Set(["whatsapp", "instagram", "facebook"]);
 
 export function drawElements(ctx: DrawCtx, els: DocElement[]) {
   for (const el of els) {
@@ -50,14 +60,34 @@ export function drawElements(ctx: DrawCtx, els: DocElement[]) {
       const p = toPt(ctx, xMm, baselineMm);
       ctx.page.drawText(text, { x: p.x, y: p.y, size: el.size, font, color: g(el.gray ?? 0) });
     } else if (el.kind === "icon") {
-      const [, vbH] = ICON_VIEWBOX[el.icon];
-      const iconBottom = toPt(ctx, el.x, el.y + ptToMm(el.size));
-      ctx.page.drawSvgPath(ICON_PATHS[el.icon], {
-        x: iconBottom.x,
-        y: iconBottom.y,
-        scale: el.size / vbH,
-        color: g(el.gray ?? 0),
-      });
+      const iconFontFamily = BRAND_ICONS.has(el.icon) ? ICON_BRANDS_FONT : ICON_SOLID_FONT;
+      const iconFont = ctx.fonts?.get(iconFontFamily)?.regular;
+
+      // Os ícones já são definidos como glifos Font Awesome no projeto e as
+      // fontes são incorporadas ao PDF. Usar o glifo aqui evita a divergência
+      // de sistema de coordenadas do drawSvgPath e mantém o alinhamento com
+      // os textos do mesmo elemento.
+      if (iconFont) {
+        const glyph = ICON_GLYPHS[el.icon];
+        const baselineMm = el.y + (el.size * 0.78 * 25.4) / 72;
+        const p = toPt(ctx, el.x, baselineMm);
+        ctx.page.drawText(glyph, {
+          x: p.x,
+          y: p.y,
+          size: el.size,
+          font: iconFont,
+          color: g(el.gray ?? 0),
+        });
+      } else {
+        const [, vbH] = ICON_VIEWBOX[el.icon];
+        const iconBottom = toPt(ctx, el.x, el.y + ptToMm(el.size));
+        ctx.page.drawSvgPath(ICON_PATHS[el.icon], {
+          x: iconBottom.x,
+          y: iconBottom.y,
+          scale: el.size / vbH,
+          color: g(el.gray ?? 0),
+        });
+      }
     } else if (el.kind === "line") {
       const a = toPt(ctx, el.x1, el.y1), b = toPt(ctx, el.x2, el.y2);
       ctx.page.drawLine({ start: a, end: b, thickness: mmToPt(el.lineWidth ?? 0.3), color: g(el.gray ?? 0), ...(el.dash ? { dashArray: el.dash.map(mmToPt) } : {}) });
