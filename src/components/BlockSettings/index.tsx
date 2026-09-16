@@ -15,7 +15,7 @@ export function BlockSettings() {
     : doc.typeId === "pedido"
       ? BLOCK_SIZES.filter((s) => !["14x10", "20x9", "20x7"].includes(s.id))
       : rules.canhoto === "required"
-        ? BLOCK_SIZES.filter((s) => s.widthMm > s.heightMm)
+        ? BLOCK_SIZES.filter((s) => s.widthMm > s.heightMm && s.id !== "28x20")
         : BLOCK_SIZES.filter((s) => s.id !== "14x10");
 
   useEffect(() => {
