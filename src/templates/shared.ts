@@ -63,7 +63,6 @@ export function buildFooter(ctx: LayoutContext, bottomY: number): DocElement[] {
   const { company, doc, m, contentW } = ctx; const f = doc.footer; const items = footerItems(ctx); const size = footerFontSize(ctx); const rows = footerRows(ctx, size); const msg = f.message || company.footerText; const msgSize = msg ? fitTextSize(msg, size + 1, contentW) : size + 1; const els: DocElement[] = []; let y = bottomY - 2;
   if (msg) y -= ptToMm(msgSize) + 1;
   if (rows.length) y -= rows.length * (ptToMm(size) + 1);
-  els.push({ kind: "line", x1: m, y1: y - 2, x2: m + contentW, y2: y - 2, lineWidth: 0.3, gray: 0.6 });
   rows.forEach((row) => { const rowW = row.reduce((sum, entry) => sum + entry.width, 0) + 4 * Math.max(0, row.length - 1); let x = m + Math.max(0, (contentW - rowW) / 2); row.forEach((entry) => { const item = entry.item; if (item.icon) { els.push({ kind: "icon", x, y, size, icon: item.icon, gray: 0.25 }); x += iconAdvance(size, item.icon) + 1.2; } els.push({ kind: "text", x, y, size, text: item.text, gray: 0.25, fontFamily: doc.bodyFont }); x += textAdvance(item.text, size) + 4; }); y += ptToMm(size) + 1; });
   if (msg) els.push({ kind: "text", x: m, y, size: msgSize, bold: true, align: "center", width: contentW, text: msg, fontFamily: doc.bodyFont }); return els;
 }
