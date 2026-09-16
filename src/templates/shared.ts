@@ -34,7 +34,7 @@ function footerFontSize(ctx: LayoutContext): number {
 }
 
 function footerRows(ctx: LayoutContext, size: number): { item: { icon?: keyof typeof ICON_GLYPHS; text: string }; width: number }[][] {
-  const items = footerItems(ctx); const sep = 3; const rows: { item: { icon?: keyof typeof ICON_GLYPHS; text: string }; width: number }[][] = [];
+  const items = footerItems(ctx); const sep = 4; const rows: { item: { icon?: keyof typeof ICON_GLYPHS; text: string }; width: number }[][] = [];
   let row: { item: { icon?: keyof typeof ICON_GLYPHS; text: string }; width: number }[] = []; let rowW = 0;
   for (const item of items) {
     const width = textAdvance(item.text, size) + (item.icon ? iconAdvance(size, item.icon) + 1.2 : 0);
@@ -64,7 +64,7 @@ export function buildFooter(ctx: LayoutContext, bottomY: number): DocElement[] {
   if (msg) y -= ptToMm(msgSize) + 1;
   if (rows.length) y -= rows.length * (ptToMm(size) + 1);
   els.push({ kind: "line", x1: m, y1: y - 2, x2: m + contentW, y2: y - 2, lineWidth: 0.3, gray: 0.6 });
-  rows.forEach((row) => { const rowW = row.reduce((sum, entry) => sum + entry.width, 0) + 3 * Math.max(0, row.length - 1); let x = m + Math.max(0, (contentW - rowW) / 2); row.forEach((entry, index) => { const item = entry.item; if (item.icon) { els.push({ kind: "icon", x, y, size, icon: item.icon, gray: 0.25 }); x += iconAdvance(size, item.icon) + 1.2; } els.push({ kind: "text", x, y, size, text: item.text, gray: 0.25, fontFamily: doc.bodyFont }); x += textAdvance(item.text, size); if (index < row.length - 1) { els.push({ kind: "text", x, y, size, text: "•", gray: 0.35, fontFamily: doc.bodyFont }); x += 3; } }); y += ptToMm(size) + 1; });
+  rows.forEach((row) => { const rowW = row.reduce((sum, entry) => sum + entry.width, 0) + 4 * Math.max(0, row.length - 1); let x = m + Math.max(0, (contentW - rowW) / 2); row.forEach((entry) => { const item = entry.item; if (item.icon) { els.push({ kind: "icon", x, y, size, icon: item.icon, gray: 0.25 }); x += iconAdvance(size, item.icon) + 1.2; } els.push({ kind: "text", x, y, size, text: item.text, gray: 0.25, fontFamily: doc.bodyFont }); x += textAdvance(item.text, size) + 4; }); y += ptToMm(size) + 1; });
   if (msg) els.push({ kind: "text", x: m, y, size: msgSize, bold: true, align: "center", width: contentW, text: msg, fontFamily: doc.bodyFont }); return els;
 }
 
